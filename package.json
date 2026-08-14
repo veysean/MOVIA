@@ -1,0 +1,15 @@
+{
+  "name": "movia-landing",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MOVIA — Cambodia's mobility intelligence layer. Single-page landing site.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.1.7"
+  }
+}

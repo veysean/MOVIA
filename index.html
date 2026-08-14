@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0c211f" />
+    <title>MOVIA — Charger status you can trust</title>
+    <meta
+      name="description"
+      content="Real-time EV charger status you can actually trust — confirmed by riders, free for riders, always. Piloting on Phnom Penh's National Road 6A corridor."
+    />
+    <meta property="og:title" content="MOVIA — Every journey teaches the city." />
+    <meta
+      property="og:description"
+      content="Real-time charger status you can actually trust — confirmed by riders, free for you, always."
+    />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ================= NAV ================= -->
+    <header class="site-header">
+      <div class="wrap site-header__inner">
+        <a class="wordmark" href="#top" aria-label="MOVIA — back to top">
+          <span class="wordmark__dot" aria-hidden="true"></span>
+          <span class="wordmark__text">MOVIA</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <ul class="site-nav__list" data-render="nav-links"></ul>
+        </nav>
+
+        <div class="site-header__actions">
+          <!-- href/label injected from content.home.js nav.cta -->
+          <a class="btn btn--ghost btn--mono site-header__cta" data-render="nav-cta" href="#"></a>
+          <button
+            class="nav-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="mobile-nav"
+            aria-label="Open navigation menu"
+          >
+            <span class="nav-toggle__bars" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-nav" id="mobile-nav" hidden>
+        <nav class="wrap" aria-label="Primary, mobile">
+          <ul class="mobile-nav__list" data-render="mobile-nav-links"></ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ================= HERO ================= -->
+      <section id="top" class="hero">
+        <div class="wrap hero__grid">
+          <div class="hero__copy reveal">
+            <p class="eyebrow">Cambodia's mobility intelligence layer</p>
+            <h1 class="hero__title">Every journey teaches the city.</h1>
+            <p class="hero__sub">
+              Real-time charger status you can actually trust — confirmed by riders, free for you,
+              always.
+            </p>
+            <div class="hero__actions">
+              <a class="btn btn--primary" data-cta="rider" href="#"></a>
+              <a class="btn btn--ghost" data-cta="partner" href="#"></a>
+            </div>
+          </div>
+
+          <div class="hero__panel panel reveal">
+            <div class="panel__head">
+              <span class="mono-label">Live signal · NR6A corridor</span>
+            </div>
+
+            <!-- Decorative: the readable equivalent is the signal list below.
+                 NOTE: this markup is intentionally identical to the hero SVG in
+                 pitch.html — the same component on both pages. Edit both, or
+                 neither. The chip data below comes from content.shared.js. -->
+            <svg
+              class="signal"
+              viewBox="0 0 520 300"
+              role="presentation"
+              aria-hidden="true"
+              focusable="false"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <path
+                class="signal__route"
+                d="M 36 244 L 132 244 Q 176 244 196 206 L 244 118 Q 262 84 302 84 L 400 84 Q 444 84 468 52"
+              />
+              <g class="signal__node" style="--delay: 0s">
+                <circle class="signal__ring" cx="132" cy="244" r="10" />
+                <circle class="signal__core" cx="132" cy="244" r="5" />
+              </g>
+              <g class="signal__node" style="--delay: 1.5s">
+                <circle class="signal__ring" cx="244" cy="118" r="10" />
+                <circle class="signal__core" cx="244" cy="118" r="5" />
+              </g>
+              <g class="signal__node" style="--delay: 3s">
+                <circle class="signal__ring" cx="400" cy="84" r="10" />
+                <circle class="signal__core" cx="400" cy="84" r="5" />
+              </g>
+            </svg>
+
+            <ul class="chips" data-render="hero-signals"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= WHAT YOU GET ================= -->
+      <section id="benefits" class="section reveal">
+        <div class="wrap">
+          <p class="eyebrow">What you get</p>
+          <h2 class="section__title">Three reasons riders keep it open.</h2>
+          <ul class="card-grid card-grid--3" data-render="benefits"></ul>
+        </div>
+      </section>
+
+      <!-- ================= FOR RIDERS ================= -->
+      <section id="riders" class="section reveal">
+        <div class="wrap">
+          <p class="eyebrow">For riders</p>
+          <h2 class="section__title">Three taps, not three Facebook groups.</h2>
+          <p class="section__intro" data-render="riders-who"></p>
+
+          <ol class="card-grid card-grid--3" data-render="rider-steps"></ol>
+
+          <p class="section__cta">
+            <a class="btn btn--primary" data-cta="rider" href="#"></a>
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= FOR PARTNERS ================= -->
+      <section id="partners" class="section reveal">
+        <div class="wrap">
+          <p class="eyebrow">For partners</p>
+          <h2 class="section__title" data-render="partner-promise"></h2>
+          <p class="section__intro" data-render="partners-who"></p>
+
+          <p class="note note--jade">
+            You get demand patterns, uptime signal, and verified charging activity — never an
+            individual rider's movements.
+          </p>
+
+          <p class="section__cta">
+            <a class="btn btn--ghost" data-cta="partner" href="#"></a>
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= HOW IT WORKS ================= -->
+      <section id="how" class="section reveal">
+        <div class="wrap">
+          <p class="eyebrow">How it works</p>
+          <h2 class="section__title">Confidence and age, on every signal.</h2>
+          <p class="section__intro">
+            MOVIA never shows "Available." It shows
+            <strong>"Available — confirmed 12 min ago, 3 riders."</strong> Refusing to overclaim
+            isn't a limitation of the product. It is the product.
+          </p>
+
+          <div class="trust__grid">
+            <div class="panel trust__panel">
+              <div class="panel__head">
+                <span class="mono-label">Signal states</span>
+              </div>
+              <table class="state-table">
+                <caption class="visually-hidden">
+                  MOVIA signal states and what each one means
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">State</th>
+                    <th scope="col">Meaning</th>
+                  </tr>
+                </thead>
+                <tbody data-render="trust-states"></tbody>
+              </table>
+            </div>
+
+            <ol class="principles" data-render="trust-principles"></ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== WHY NOT GOOGLE MAPS (full-bleed strip) ====== -->
+      <div class="banner reveal">
+        <div class="wrap banner__inner">
+          <p class="mono-label banner__label" data-render="maps-label"></p>
+          <blockquote class="banner__quote">
+            <p>
+              <span data-render="maps-lead"></span>
+              <span class="banner__turn" data-render="maps-turn"></span>
+            </p>
+          </blockquote>
+        </div>
+      </div>
+
+      <!-- ================= WHY WE STARTED THIS ================= -->
+      <section id="origin" class="section section--tight reveal">
+        <div class="wrap">
+          <p class="eyebrow">Why we started this</p>
+          <p class="origin__lead">
+            We didn't invent this problem. A rider on National Road 6A told us about it.
+          </p>
+
+          <figure class="evidence">
+            <div class="evidence__body">
+              <blockquote class="evidence__quote" data-render="evidence-quote"></blockquote>
+              <figcaption class="evidence__source" data-render="evidence-source"></figcaption>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= FAQ ================= -->
+      <section id="faq" class="section reveal">
+        <div class="wrap">
+          <p class="eyebrow">FAQ</p>
+          <h2 class="section__title">Straight answers.</h2>
+          <ul class="faq" data-render="faq"></ul>
+        </div>
+      </section>
+
+      <!-- ================= WHAT'S NEXT ================= -->
+      <section id="next" class="section section--tight reveal">
+        <div class="wrap">
+          <p class="eyebrow">What's next</p>
+          <div class="whats-next" data-render="whats-next"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER / CTA ================= -->
+    <footer id="contact" class="site-footer reveal">
+      <div class="wrap site-footer__cta">
+        <h2 class="section__title">Ready to never wonder again?</h2>
+
+        <div class="hero__actions footer__actions">
+          <a class="btn btn--primary" data-cta="rider" href="#"></a>
+          <a class="btn btn--ghost" data-cta="partner" href="#"></a>
+        </div>
+
+        <p class="footer__pitch">
+          <span data-render="pitch-link-text"></span>
+          <a class="footer__pitch-link" data-render="pitch-link" href="./pitch.html"></a>
+        </p>
+
+        <p class="footer__contact">
+          <a data-render="contact-link" href="#"></a>
+        </p>
+
+        <!-- Copy injected from content.home.js — see the PLACEHOLDER PRIVACY
+             NOTE warning there. This is a stopgap, not a policy. -->
+        <p class="footer__privacy" data-render="privacy-note"></p>
+
+        <div class="sdg sdg--footer">
+          <p class="mono-label">SDG alignment</p>
+          <ul class="sdg__list" data-render="sdg-goals"></ul>
+        </div>
+      </div>
+
+      <div class="site-footer__bar">
+        <div class="wrap site-footer__bar-inner">
+          <p>MOVIA — Phnom Penh, Cambodia</p>
+          <p>© 2026 MOVIA</p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/home.js"></script>
+  </body>
+</html>
