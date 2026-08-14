@@ -7,6 +7,7 @@ Thumbs.db
 
 # Machine-specific: hooks in here hardcode absolute paths to this workstation.
 .claude
+docs
 
 # graphify: keep the graph output, ignore what regenerates on every update.
 # `graphify update .` rewrites these, so tracking them puts unrelated churn
