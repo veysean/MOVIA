@@ -1,0 +1,37 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import { getDict, p, staticLangPaths, type Lang } from '../../../i18n';
+export const getStaticPaths = staticLangPaths;
+const lang = Astro.params.lang as Lang;
+const t = getDict(lang);
+const th = t.join.thanks;
+---
+<Base lang={lang} title={t.meta.thanks} page="join" noindex>
+  <section class="section thanks">
+    <div class="wrap thanks__in">
+      <span class="thanks__icon"><Icon name="check" size={36} /></span>
+      <p class="eyebrow">{th.eyebrow}</p>
+      <h1 class="pagehero__title">{th.title}</h1>
+      <p class="pagehero__lede">{th.text}</p>
+      <div class="card thanks__next">
+        <h2 class="thanks__h">{th.nextTitle}</h2>
+        <ol class="steps">{th.next.map((s, i) => <li><span class="steps__n">{i + 1}</span><span>{s}</span></li>)}</ol>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn--lg btn--primary" href={p(lang, '/')}>{th.back}</a>
+        <a class="btn btn--lg btn--soft" href={p(lang, '/about/')}>{th.about}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .thanks { background: var(--pearl); }
+  .thanks__in { display: grid; gap: var(--sp-3); justify-items: start; max-width: 760px; }
+  .thanks__icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok-text); margin-bottom: var(--sp-3); }
+  .thanks__next { width: 100%; padding: var(--sp-6); margin: var(--sp-5) 0; }
+  .thanks__h { font-size: var(--fs-lg); margin-bottom: var(--sp-4); }
+  .steps { display: grid; gap: var(--sp-4); }
+  .steps li { display: flex; gap: var(--sp-3); align-items: flex-start; }
+  .steps__n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--azure-soft); color: var(--azure); font-weight: 700; font-size: var(--fs-sm); }
+</style>

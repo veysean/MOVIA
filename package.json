@@ -1,15 +1,26 @@
 {
-  "name": "movia-landing",
+  "name": "movia-website",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "MOVIA — Cambodia's mobility intelligence layer. Single-page landing site.",
+  "description": "MOVIA — public website (Home, About Us, Join Us). Astro static site on Cloudflare Pages with a D1-backed interest form.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "npm run build && wrangler pages dev dist",
+    "db:init:local": "wrangler d1 execute movia-interest --local --file=db/schema.sql",
+    "db:init:remote": "wrangler d1 execute movia-interest --remote --file=db/schema.sql",
+    "db:export": "wrangler d1 execute movia-interest --remote --command \"SELECT * FROM interest ORDER BY created_at DESC\" --json > interest-export.json",
+    "check:content": "node scripts/check-content.mjs"
+  },
+  "dependencies": {
+    "@fontsource/kantumruy-pro": "^5.3.0",
+    "astro": "^7.4.0"
   },
   "devDependencies": {
-    "vite": "^7.1.7"
+    "@astrojs/check": "^0.9.10",
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.151.1"
   }
 }

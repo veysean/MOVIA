@@ -1,0 +1,54 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LangToggle from './LangToggle.astro';
+import { getDict, p, type Lang } from '../i18n';
+interface Props { lang: Lang; page: string }
+const { lang, page } = Astro.props;
+const t = getDict(lang);
+const links = [
+  { key: 'home', href: p(lang, '/'), label: t.nav.home },
+  { key: 'about', href: p(lang, '/about/'), label: t.nav.about },
+];
+---
+<header class="header">
+  <div class="wrap header__in">
+    <a class="brand" href={p(lang, '/')} aria-label={`MOVIA — ${t.nav.home}`}><Logo height={36} /></a>
+    <nav class="nav" aria-label={t.nav.primary}>
+      {links.map((l) => <a class="nav__link" href={l.href} aria-current={page === l.key ? 'page' : undefined}>{l.label}</a>)}
+      <div class="nav__ctas">
+        <a class="btn btn--soft" href={p(lang, '/about/')}>{t.nav.moveWithUs}</a>
+        <a class="btn btn--primary" href={p(lang, '/join/')} aria-current={page === 'join' ? 'page' : undefined}>{t.nav.joinUs}</a>
+      </div>
+    </nav>
+    <LangToggle lang={lang} class="lang--desk" />
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu>
+      <span class="sr-only">{t.nav.menu}</span>
+      <Icon name="menu" class="i-open" /><Icon name="close" class="i-close" />
+    </button>
+  </div>
+  <div class="mobile-nav" id="mobile-nav" hidden>
+    {links.map((l) => <a class="nav__link" href={l.href} aria-current={page === l.key ? 'page' : undefined}>{l.label}</a>)}
+    <div class="btn-row">
+      <a class="btn btn--soft" href={p(lang, '/about/')}>{t.nav.moveWithUs}</a>
+      <a class="btn btn--primary" href={p(lang, '/join/')}>{t.nav.joinUs}</a>
+    </div>
+    <LangToggle lang={lang} />
+  </div>
+</header>
+<style>
+  /* :global — the icons are rendered by Icon.astro, so this component's scope attribute isn't on them */
+  .menu-btn :global(.i-close) { display: none; }
+  .menu-btn[aria-expanded='true'] :global(.i-close) { display: block; }
+  .menu-btn[aria-expanded='true'] :global(.i-open) { display: none; }
+</style>
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu]');
+  const panel = document.getElementById('mobile-nav');
+  if (btn && panel) {
+    const set = (open: boolean) => { btn.setAttribute('aria-expanded', String(open)); panel.hidden = !open; };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+    window.addEventListener('resize', () => { if (window.innerWidth >= 960) set(false); });
+  }
+</script>

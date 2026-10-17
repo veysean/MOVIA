@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { getDict, staticLangPaths, type Lang } from '../../i18n';
+import { site } from '../../data/site';
+export const getStaticPaths = staticLangPaths;
+const lang = Astro.params.lang as Lang;
+const t = getDict(lang);
+const pr = t.privacy;
+---
+<Base lang={lang} title={t.meta.privacy} page="other">
+  <section class="pagehero">
+    <div class="wrap">
+      <p class="eyebrow">{pr.eyebrow}</p>
+      <h1 class="pagehero__title">{pr.title}</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap prose">
+      <p class="note"><Icon name="alert" size={20} />{pr.draft}</p>
+      {pr.sections.map((s) => (<><h2>{s.h}</h2>{s.p.map((x) => <p>{x}</p>)}</>))}
+      <h2>{pr.contact}</h2>
+      <p><a class="textlink" href={`mailto:${site.email}`}>{site.email}</a></p>
+    </div>
+  </section>
+</Base>

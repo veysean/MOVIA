@@ -1,17 +1,12 @@
 node_modules/
 dist/
-.vite/
+.astro/
+.wrangler/
+.dev.vars
+interest-export.json
 *.local
 .DS_Store
 Thumbs.db
-
-# Machine-specific: hooks in here hardcode absolute paths to this workstation.
 .claude
-docs
-
-# graphify: keep the graph output, ignore what regenerates on every update.
-# `graphify update .` rewrites these, so tracking them puts unrelated churn
-# in every commit. graph.json / graph.html / GRAPH_REPORT.md / manifest.json
-# stay tracked.
-graphify-out/cache/
-graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+CLAUDE.md
+graphify-out/

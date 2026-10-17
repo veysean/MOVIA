@@ -1,78 +1,76 @@
 # MOVIA — website
 
-Two static pages for MOVIA, Cambodia's mobility intelligence layer, sharing one
-design system. Built to the MOVIA landing page brief (kept out of this repo —
-see `docs/` locally).
+Public website for MOVIA: **Home · About Us · Join Us** in English and Khmer, with a
+role-based interest form. Built to the *Website Content Structure Handover v1.0* and the
+rider-app brand (Steel Azure / Deep Saffron / Pearl).
 
-| Page | Who it's for |
-|---|---|
-| `index.html` | The homepage. Benefit-first, written for a rider or partner arriving cold. |
-| `pitch.html` | The full product & business pitch — problem, architecture, features, trust model, roadmap, team. |
+**Stack:** Astro 7 (static) · plain CSS tokens · Kantumruy Pro · Cloudflare Pages ·
+Pages Function + D1 (form storage) · Turnstile (spam protection). **Cost:** $0.
 
-Vite (multi-page) + vanilla JS + hand-written CSS. No framework, no backend, no analytics.
+The previous dark "night-ops" site (incl. `pitch.html`) is preserved at tag `legacy-v1`.
 
-## Develop
+## Run locally
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173/MOVIA/  (and /MOVIA/pitch.html)
-npm run build    # → dist/index.html + dist/pitch.html
-npm run preview  # serve the built dist/
+npm run dev                 # pages only → http://localhost:4321/en/
+# full stack incl. the form API and a local database:
+cp .dev.vars.example .dev.vars
+npm run db:init:local
+npm run preview             # → http://localhost:8788/en/
 ```
 
-## Where things live
+## Where to edit
 
-| Path | What |
+| What | File |
 |---|---|
-| `index.html` / `pitch.html` | Section structure, headings, and prose for each page. Both render without JS. |
-| `src/data/content.shared.js` | **Single source of truth** for everything on both pages: trust states, principles, the Google Maps quote, the rider interview, SDG list, badges, hero signals, contact, the partner promise. |
-| `src/data/content.home.js` | Homepage-only copy — benefits, rider steps, FAQ, privacy note. |
-| `src/data/content.pitch.js` | Pitch-only copy — problem, layers, features, roadmap, the ask. |
-| `src/lib/ui.js` | Shared runtime: render helpers, nav, header-height sync, scroll reveal, and the components both pages use. |
-| `src/home.js` / `src/pitch.js` | Per-page entry points. |
-| `src/style.css` | Design tokens and every style rule, shared by both pages. |
-| `.github/workflows/deploy.yml` | Builds and publishes to GitHub Pages. |
+| All English / Khmer copy | `src/i18n/en.ts`, `src/i18n/km.ts` (Khmer = draft, needs native review) |
+| Team cards | `src/data/team.ts` — set `confirmed: true` only after the member approves |
+| Proof points (numbers) | `src/data/impact.ts` — value + definition + date |
+| Ecosystem & recognition | `src/data/ecosystem.ts` — `partner` / `program` / `engagement` |
+| Public email, LinkedIn | `src/data/site.ts` |
+| Colours, type, spacing | `src/styles/tokens.css` |
+| Form fields (UI) | `src/pages/[lang]/join/index.astro` |
+| Form API + validation | `functions/api/interest.ts` · DB schema `db/schema.sql` |
 
-**Do not copy strings between the content files.** If a line needs to appear on
-both pages, it belongs in `content.shared.js` and gets imported. The pitch page's
-partner-layer summary and the homepage's partner heading are the same constant
-(`partnerPromise`); the homepage FAQ's Google Maps answer is composed from
-`whyNotMaps`. That's deliberate — it keeps the two pages from drifting.
+`npm run check:content` lists everything still marked *To confirm*.
 
-The one intentional duplication is the hero signal `<svg>` markup, which is
-inline in both HTML files so the panel still renders without JS. Both copies
-carry a comment saying to edit them together.
+## Deploy to Cloudflare Pages (one time, ~20 min)
 
-## Before going public
+1. **Create the database**
+   ```bash
+   npx wrangler login
+   npx wrangler d1 create movia-interest     # copy the database_id it prints
+   ```
+   Paste the id into `wrangler.toml` (`database_id = "…"`), commit, then:
+   ```bash
+   npm run db:init:remote
+   ```
+2. **Create Turnstile keys:** Cloudflare dashboard → Turnstile → Add widget →
+   hostname `movia.pages.dev` (your Pages subdomain; add the custom domain later). Copy the site key and secret key.
+3. **Create the Pages project:** Workers & Pages → Create → Pages → *Connect to Git* →
+   `veysean/MOVIA`, branch `main`. Framework preset **Astro**, build command `npm run build`,
+   output directory `dist`.
+4. **Environment variables** (Settings → Variables and secrets, Production *and* Preview):
+   - `PUBLIC_TURNSTILE_SITE_KEY` = your site key (plain text, used at build time)
+   - `TURNSTILE_SECRET` = your secret key (**encrypt**)
+   - `SITE_URL` = `https://<your-project>.pages.dev`
+   The D1 binding `DB` comes from `wrangler.toml` automatically.
+5. **Deploy** → retry the deployment once after adding the variables. Submit a test entry,
+   then check it: `npx wrangler d1 execute movia-interest --remote --command "SELECT * FROM interest"`.
+6. In the old repo settings, disable **GitHub Pages** (the old workflow has been removed).
 
-- **The "Join the pilot" link has no real destination.** Every rider CTA falls
-  back to `mailto:hello@movia.app?subject=Join%20the%20pilot`. Swap in the
-  Telegram group or Google Form from the V0 concierge plan once one exists — see
-  the boxed `PLACEHOLDER PILOT SIGN-UP LINK` comment in `content.shared.js`.
-- **The footer privacy note is a stopgap, not a policy.** No legal review. See
-  the boxed `PLACEHOLDER PRIVACY NOTE` comment in `content.home.js`. Replace it
-  with a real policy before any data collection begins.
-- **Re-check the pitch ask per audience.** Event-agnostic and safe as written,
-  but the three specifics may need adjusting per room — boxed `UNCONFIRMED ASK`
-  comment in `content.pitch.js`.
-- **The product mockup is a concept, not a screenshot.** Distances in
-  `previewChargers` are illustrative placeholders. The caption says so; keep it
-  that way.
-- Confirm `base` in `vite.config.js` matches the deploy target. It is `/MOVIA/`,
-  which is correct for `https://veysean.github.io/MOVIA/`. Set it to `/` for a
-  custom domain or a root user-page repo.
+Export submissions any time: `npm run db:export` → `interest-export.json`.
 
-## Deploy
+### Later: custom domain
+Buy the domain in Cloudflare → Pages project → Custom domains → add it. Then add the
+domain to the Turnstile widget hostnames, update `SITE_URL`, and set up Email Routing for
+`hello@…` → update `src/data/site.ts`.
 
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds with Vite
-and publishes the whole `dist/` (both pages) to GitHub Pages. No workflow change
-was needed for the second page. `dist/` is gitignored and never committed.
-
-One-time repo setup, done by hand: **Settings → Pages → Source → "GitHub Actions."**
-The first workflow run fails without it.
-
-## Known fast-follows (out of scope for v1, per brief §8)
-
-- Khmer-language version.
-- Real form backend / CMS / analytics.
-- Team photos.
+## Before going public (blocks launch, not the build)
+- [ ] Team: names, bios, photos, approvals (`team.ts`)
+- [ ] Verified proof points with dates (`impact.ts`)
+- [ ] Exact DGIy Demo Day / GreenHouse / Tsinghua wording + permission (`ecosystem.ts`)
+- [ ] Khmer review by a native speaker (`km.ts`)
+- [ ] Real public inbox (`site.ts`) and privacy retention period (`privacy` in `en.ts`/`km.ts`)
+- [ ] Confirm mission & vision wording

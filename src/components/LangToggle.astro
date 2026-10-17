@@ -1,0 +1,11 @@
+---
+import { swapLang, getDict, type Lang } from '../i18n';
+interface Props { lang: Lang; class?: string }
+const { lang, class: cls = '' } = Astro.props;
+const path = Astro.url.pathname;
+const t = getDict(lang);
+---
+<nav class={`lang ${cls}`} aria-label={t.nav.language}>
+  <a href={swapLang(path, 'en') + Astro.url.search} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+  <a href={swapLang(path, 'km') + Astro.url.search} hreflang="km" lang="km" aria-current={lang === 'km' ? 'true' : undefined}>ខ្មែរ</a>
+</nav>
