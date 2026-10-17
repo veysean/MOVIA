@@ -9,4 +9,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "movia-interest"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "21e36d87-1baa-49b0-bced-2b2674e15793"
