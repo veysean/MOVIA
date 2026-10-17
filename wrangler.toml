@@ -1,0 +1,12 @@
+# Cloudflare Pages project config (used by `wrangler pages dev` and Pages deploys).
+name = "movia"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "dist"
+
+# Interest-form database. Create it once with:
+#   npx wrangler d1 create movia-interest
+# then paste the database_id it prints below and run `npm run db:init:remote`.
+[[d1_databases]]
+binding = "DB"
+database_name = "movia-interest"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"

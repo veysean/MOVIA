@@ -1,0 +1,233 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import TodoTag from '../../components/TodoTag.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getDict, p, L, staticLangPaths, type Lang } from '../../i18n';
+import { team } from '../../data/team';
+import { proofPoints } from '../../data/impact';
+import { ecosystem } from '../../data/ecosystem';
+
+export const getStaticPaths = staticLangPaths;
+const lang = Astro.params.lang as Lang;
+const t = getDict(lang);
+const a = t.about;
+const valueIcon: Record<string, string> = { trust: 'eye', safety: 'shield', interop: 'link', inclusive: 'users', sustain: 'leaf', evidence: 'flask' };
+const tierStyle: Record<string, { badge: string; icon: string; iconCls: string }> = {
+  learning: { badge: 'badge--ok', icon: 'chat', iconCls: 'row__icon--ok' },
+  building: { badge: 'badge--azure', icon: 'wrench', iconCls: '' },
+  aim: { badge: 'badge--neutral', icon: 'star', iconCls: 'row__icon--neutral' },
+};
+const ecoTypes = ['partner', 'program', 'engagement'] as const;
+const ecoIcon = { partner: 'handshake', program: 'star', engagement: 'chat' };
+const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''));
+---
+<Base lang={lang} title={t.meta.about} page="about">
+  <section class="pagehero">
+    <div class="wrap">
+      <p class="eyebrow">{a.hero.eyebrow}</p>
+      <h1 class="pagehero__title">{a.hero.title}</h1>
+      <p class="pagehero__lede">{a.hero.lede}</p>
+      <nav class="subnav" aria-label={a.hero.eyebrow}>
+        {Object.entries(a.subnav).map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <!-- 5.1 Mission & Vision -->
+  <section class="section" id="mission">
+    <div class="wrap">
+      <div class="section__head"><p class="eyebrow">{a.mission.eyebrow}</p><h2 class="section__title">{a.mission.title}</h2></div>
+      <div class="grid-2">
+        <article class="card mv">
+          <span class="badge badge--azure">{a.mission.missionLabel}</span>
+          <p class="mv__text">{a.mission.mission}</p>
+          <p class="cap">{a.mission.missionNote}</p>
+        </article>
+        <article class="card mv mv--vision">
+          <span class="badge badge--azure">{a.mission.visionLabel}</span>
+          <p class="mv__text">{a.mission.vision}</p>
+          <p class="cap">{a.mission.visionNote}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5.2 Values -->
+  <section class="section section--pearl" id="values">
+    <div class="wrap">
+      <div class="section__head"><p class="eyebrow">{a.values.eyebrow}</p><h2 class="section__title">{a.values.title}</h2></div>
+      <ul class="group values">
+        {a.values.items.map((v) => (
+          <li class="row">
+            <span class="row__icon"><Icon name={valueIcon[v.key]} /></span>
+            <div><h3 class="row__title">{v.name}</h3><p class="row__text">{v.text}</p></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5.3 Team -->
+  <section class="section" id="team">
+    <div class="wrap">
+      <div class="section__head"><p class="eyebrow">{a.team.eyebrow}</p><h2 class="section__title">{a.team.title}</h2><p class="section__lede">{a.team.lede}</p></div>
+      <ul class="team">
+        {team.map((m) => (
+          <li class="card member">
+            {m.photo ? <img class="member__photo" src={m.photo} alt={L(lang, m.name)} width="72" height="72" loading="lazy" /> : <span class="member__photo member__photo--empty" aria-hidden="true">{initials(L(lang, m.name)) || <Icon name="user" size={28} />}</span>}
+            <div class="member__body">
+              {!m.confirmed && <TodoTag lang={lang} />}
+              <h3 class="member__name">{L(lang, m.name)}</h3>
+              <p class="member__role">{L(lang, m.role)}</p>
+              <p class="member__bio">{m.confirmed ? L(lang, m.bio) : a.team.pending}</p>
+              {m.confirmed && (m.linkedin || m.email) && (
+                <p class="member__links">
+                  {m.linkedin && <a class="textlink" href={m.linkedin} rel="noopener">{a.team.linkedin}<Icon name="arrow" size={16} /></a>}
+                  {m.email && <a class="textlink" href={`mailto:${m.email}`}>{a.team.email}</a>}
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5.4 Impact -->
+  <section class="section section--pearl" id="impact">
+    <div class="wrap">
+      <div class="section__head"><p class="eyebrow">{a.impact.eyebrow}</p><h2 class="section__title">{a.impact.title}</h2><p class="section__lede">{a.impact.lede}</p></div>
+      <ol class="grid-3 tiers">
+        {a.impact.tiers.map((tier) => (
+          <li class="card tier">
+            <div class="tier__top">
+              <span class={`row__icon ${tierStyle[tier.key].iconCls}`}><Icon name={tierStyle[tier.key].icon} /></span>
+              <span class={`badge ${tierStyle[tier.key].badge}`}>{tier.label}</span>
+            </div>
+            <h3 class="tier__title">{tier.title}</h3>
+            <ul class="ticks">{tier.items.map((i) => <li><Icon name="check" size={18} />{i}</li>)}</ul>
+          </li>
+        ))}
+      </ol>
+      <div class="proof">
+        <div class="proof__head"><h3 class="proof__title">{a.impact.proofTitle}</h3><p class="cap">{a.impact.proofNote}</p></div>
+        <ul class="proof__grid">
+          {proofPoints.map((pp) => (
+            <li class="proof__item">
+              {!pp.confirmed && <TodoTag lang={lang} />}
+              <p class="proof__value">{pp.value}</p>
+              <p class="proof__label">{L(lang, pp.label)}</p>
+              <p class="cap">{L(lang, pp.definition)} · {pp.asOf}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §7 Ecosystem & recognition -->
+  <section class="section" id="ecosystem">
+    <div class="wrap">
+      <div class="section__head"><p class="eyebrow">{a.ecosystem.eyebrow}</p><h2 class="section__title">{a.ecosystem.title}</h2><p class="section__lede">{a.ecosystem.lede}</p></div>
+      <div class="grid-3 eco">
+        {ecoTypes.map((type) => {
+          const items = ecosystem.filter((e) => e.type === type);
+          return (
+            <section class="eco__col">
+              <div class="eco__head">
+                <span class="row__icon"><Icon name={ecoIcon[type]} /></span>
+                <div><h3 class="eco__name">{a.ecosystem.types[type].name}</h3><p class="cap">{a.ecosystem.types[type].text}</p></div>
+              </div>
+              {items.length === 0 ? <p class="eco__none cap">{a.ecosystem.none}</p> : (
+                <ul class="group">
+                  {items.map((e) => (
+                    <li class="eco__item">
+                      {e.logo && e.logoApproved && <img src={e.logo} alt="" height="28" loading="lazy" />}
+                      <p class="eco__itemname">{L(lang, e.name)} {!e.confirmed && <TodoTag lang={lang} />}</p>
+                      <p class="cap">{L(lang, e.detail)} · {e.date}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5.5 Become our partner -->
+  <section class="section section--pearl" id="partner">
+    <div class="wrap partner">
+      <div>
+        <p class="eyebrow">{a.partner.eyebrow}</p>
+        <h2 class="section__title">{a.partner.title}</h2>
+        <p class="section__lede">{a.partner.text}</p>
+        <a class="btn btn--lg btn--primary partner__cta" href={`${p(lang, '/join/')}?role=partner`}>{a.partner.cta}<Icon name="arrow" size={20} /></a>
+      </div>
+      <div class="card partner__ways">
+        <h3 class="partner__h">{a.partner.pathwaysTitle}</h3>
+        <ul class="chips">{a.partner.pathways.map((w) => <li>{w}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand lang={lang} title={t.home.closing.title} text={t.home.closing.text} />
+</Base>
+
+<style>
+  .mv { padding: var(--sp-6); display: grid; gap: var(--sp-4); align-content: start; justify-items: start; }
+  .mv__text { font-size: var(--fs-lead); font-weight: 600; line-height: 1.4; }
+  :lang(km) .mv__text { line-height: 1.7; }
+
+  .values { display: grid; }
+  @media (min-width: 900px) {
+    .values { grid-template-columns: 1fr 1fr; }
+    .values > * + * { border-top: 0; }
+    .values > :nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .values > :nth-child(even) { border-left: 1px solid var(--line); }
+  }
+
+  .team { display: grid; gap: var(--sp-4); }
+  @media (min-width: 700px) { .team { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .team { grid-template-columns: repeat(3, 1fr); } }
+  .member { padding: var(--sp-5); display: flex; gap: var(--sp-4); align-items: flex-start; }
+  .member__photo { width: 72px; height: 72px; border-radius: var(--r-lg); object-fit: cover; flex: none; }
+  .member__photo--empty { display: grid; place-items: center; background: var(--azure-soft); color: var(--azure); font-weight: 700; font-size: var(--fs-lg); }
+  .member__body { display: grid; gap: var(--sp-1); justify-items: start; min-width: 0; }
+  .member__name { font-size: var(--fs-lg); margin-top: var(--sp-1); }
+  .member__role { color: var(--azure); font-weight: 600; font-size: var(--fs-md); }
+  .member__bio { color: var(--muted); font-size: var(--fs-md); margin-top: var(--sp-1); }
+  .member__links { display: flex; gap: var(--sp-4); }
+
+  .tier { padding: var(--sp-6) var(--sp-5); display: grid; gap: var(--sp-4); align-content: start; }
+  .tier__top { display: flex; justify-content: space-between; align-items: center; }
+  .tier__title { font-size: var(--fs-lg); }
+  .ticks { display: grid; gap: var(--sp-3); }
+  .ticks li { display: flex; gap: var(--sp-2); align-items: flex-start; color: var(--navy); font-size: var(--fs-md); }
+  .ticks :global(.ic) { color: var(--azure); margin-top: 3px; }
+
+  .proof { margin-top: var(--sp-7); }
+  .proof__head { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; margin-bottom: var(--sp-4); }
+  .proof__title { font-size: var(--fs-lg); }
+  .proof__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+  .proof__item { padding: var(--sp-5); display: grid; gap: var(--sp-1); justify-items: start; align-content: start; box-shadow: -1px 0 0 var(--line), 0 -1px 0 var(--line); }
+  .proof__value { font-size: var(--fs-xl); font-weight: 700; color: var(--azure); }
+  .proof__label { font-weight: 600; }
+
+  .eco__col { display: grid; gap: var(--sp-4); align-content: start; }
+  .eco__head { display: flex; gap: var(--sp-3); align-items: flex-start; }
+  .eco__name { font-size: var(--fs-lg); }
+  .eco__item { padding: var(--sp-4) var(--sp-5); display: grid; gap: var(--sp-1); }
+  .eco__itemname { font-weight: 600; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+  .eco__none { padding: var(--sp-4) var(--sp-5); border: 1px dashed var(--line-strong); border-radius: var(--r-lg); }
+
+  .partner { display: grid; gap: var(--sp-6); align-items: center; }
+  .partner__cta { margin-top: var(--sp-6); }
+  .partner__ways { padding: var(--sp-6); }
+  .partner__h { font-size: var(--fs-lg); margin-bottom: var(--sp-4); }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .chips li { padding: var(--sp-2) var(--sp-4); border-radius: var(--r-pill); background: var(--azure-soft); color: var(--azure); font-weight: 500; font-size: var(--fs-md); }
+  @media (min-width: 960px) { .partner { grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-8); } }
+</style>

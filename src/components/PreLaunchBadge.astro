@@ -1,0 +1,5 @@
+---
+import { getDict, type Lang } from '../i18n';
+const { lang } = Astro.props as { lang: Lang };
+---
+<span class="badge badge--prelaunch"><span class="dot" aria-hidden="true"></span>{getDict(lang).common.prelaunch}</span>

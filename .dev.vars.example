@@ -1,0 +1,3 @@
+# Copy to .dev.vars for local testing. These are Cloudflare's official
+# always-pass TEST keys — replace with real keys in the Pages dashboard.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

@@ -1,0 +1,7 @@
+---
+/* Visible marker for content that still needs team confirmation (handover §5.3, §5.4, §7). */
+import Icon from './Icon.astro';
+import { getDict, type Lang } from '../i18n';
+const { lang } = Astro.props as { lang: Lang };
+---
+<span class="badge badge--todo"><Icon name="alert" size={14} />{getDict(lang).common.toConfirm}</span>

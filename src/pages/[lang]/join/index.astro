@@ -1,0 +1,336 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import { getDict, p, staticLangPaths, type Lang } from '../../../i18n';
+
+export const getStaticPaths = staticLangPaths;
+const lang = Astro.params.lang as Lang;
+const t = getDict(lang);
+const j = t.join;
+const f = j.form;
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'; // test key: always passes
+const roles = ['driver', 'cpo', 'partner'] as const;
+const roleIcon = { driver: 'car', cpo: 'plug', partner: 'handshake' };
+const req = `(${f.required})`;
+const opt = `(${f.optional})`;
+---
+<Base lang={lang} title={t.meta.join} page="join">
+  <Fragment slot="head"><script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script></Fragment>
+
+  <section class="pagehero">
+    <div class="wrap">
+      <p class="eyebrow">{j.hero.eyebrow}</p>
+      <h1 class="pagehero__title">{j.hero.title}</h1>
+      <p class="pagehero__lede">{j.hero.lede}</p>
+    </div>
+  </section>
+
+  <section class="section join">
+    <div class="wrap join__grid">
+      <form class="form" method="post" action="/api/interest" novalidate data-form
+        data-msg-required={f.errors.required} data-msg-role={f.errors.role} data-msg-consent={f.errors.consent}
+        data-msg-captcha={f.errors.captcha} data-msg-generic={f.errors.generic} data-msg-sending={f.sending}
+        data-thanks={p(lang, '/join/thanks/')}>
+        <input type="hidden" name="lang" value={lang} />
+        <div class="form__alert" role="alert" data-alert hidden><Icon name="alert" size={20} /><span data-alert-text>{f.errors.title}</span></div>
+
+        <!-- 1. Role -->
+        <fieldset class="fs" data-field="role">
+          <legend class="fs__legend">{f.roleLegend}</legend>
+          <div class="roles">
+            {roles.map((r) => (
+              <label class="role">
+                <input type="radio" name="role" value={r} required />
+                <span class="role__box">
+                  <span class={`row__icon ${r === 'cpo' ? 'row__icon--saffron' : ''}`}><Icon name={roleIcon[r]} /></span>
+                  <span class="role__title">{f.roles[r].title}</span>
+                  <span class="role__text">{f.roles[r].text}</span>
+                  <span class="role__check"><Icon name="check" size={16} /></span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <p class="err" data-err="role"></p>
+        </fieldset>
+
+        <!-- 2. About you -->
+        <fieldset class="fs">
+          <legend class="fs__legend">{f.aboutYou}</legend>
+          <div class="field" data-field="name">
+            <label for="name">{f.name} <span class="req">{req}</span></label>
+            <input id="name" name="name" type="text" autocomplete="name" maxlength="120" required />
+            <p class="err" data-err="name"></p>
+          </div>
+          <div class="field-row">
+            <div class="field" data-field="contact_method">
+              <label for="contact_method">{f.contactMethod} <span class="req">{req}</span></label>
+              <select id="contact_method" name="contact_method" required>
+                {Object.entries(f.contactMethods).map(([v, l]) => <option value={v}>{l}</option>)}
+              </select>
+            </div>
+            <div class="field" data-field="contact_value">
+              <label for="contact_value">{f.contactValue} <span class="req">{req}</span></label>
+              <input id="contact_value" name="contact_value" type="text" maxlength="160" required aria-describedby="cv-hint" />
+              <p class="hint" id="cv-hint">{f.contactValueHint}</p>
+              <p class="err" data-err="contact_value"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 3a. Driver -->
+        <fieldset class="fs" data-role-panel="driver">
+          <legend class="fs__legend">{f.driverTitle}</legend>
+          <div class="field-row">
+            <div class="field">
+              <label for="vehicle">{f.vehicle} <span class="opt">{opt}</span></label>
+              <input id="vehicle" name="vehicle" type="text" maxlength="120" />
+            </div>
+            <div class="field" data-field="driving_profile">
+              <label for="driving_profile">{f.profile} <span class="req">{req}</span></label>
+              <select id="driving_profile" name="driving_profile" data-req="driver">
+                <option value="">—</option>
+                {Object.entries(f.profiles).map(([v, l]) => <option value={v}>{l}</option>)}
+              </select>
+              <p class="err" data-err="driving_profile"></p>
+            </div>
+          </div>
+          <div class="field" data-field="area">
+            <label for="area">{f.area} <span class="req">{req}</span></label>
+            <select id="area" name="area" data-req="driver" aria-describedby="area-hint">
+              <option value="">—</option>
+              {Object.entries(f.areas).map(([v, l]) => <option value={v}>{l}</option>)}
+            </select>
+            <p class="hint" id="area-hint">{f.areaHint}</p>
+            <p class="err" data-err="area"></p>
+          </div>
+          <fieldset class="field">
+            <legend>{f.challenges} <span class="opt">{opt}</span></legend>
+            <div class="checks">
+              {Object.entries(f.challengeOptions).map(([v, l]) => (
+                <label class="check"><input type="checkbox" name="challenges" value={v} /><span>{l}</span></label>
+              ))}
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="driver_note">{f.challengeOther} <span class="opt">{opt}</span></label>
+            <textarea id="driver_note" name="driver_note" rows="3" maxlength="1000"></textarea>
+          </div>
+        </fieldset>
+
+        <!-- 3b. CPO -->
+        <fieldset class="fs" data-role-panel="cpo">
+          <legend class="fs__legend">{f.cpoTitle}</legend>
+          <div class="field-row">
+            <div class="field" data-field="cpo_org">
+              <label for="cpo_org">{f.organization} <span class="req">{req}</span></label>
+              <input id="cpo_org" name="cpo_org" type="text" autocomplete="organization" maxlength="160" data-req="cpo" />
+              <p class="err" data-err="cpo_org"></p>
+            </div>
+            <div class="field" data-field="cpo_role">
+              <label for="cpo_role">{f.jobRole} <span class="req">{req}</span></label>
+              <input id="cpo_role" name="cpo_role" type="text" autocomplete="organization-title" maxlength="120" data-req="cpo" />
+              <p class="err" data-err="cpo_role"></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="cpo_network">{f.network} <span class="opt">{opt}</span></label>
+            <input id="cpo_network" name="cpo_network" type="text" maxlength="300" aria-describedby="net-hint" />
+            <p class="hint" id="net-hint">{f.networkHint}</p>
+          </div>
+          <div class="field" data-field="cpo_challenge">
+            <label for="cpo_challenge">{f.opChallenge} <span class="req">{req}</span></label>
+            <textarea id="cpo_challenge" name="cpo_challenge" rows="3" maxlength="1000" data-req="cpo"></textarea>
+            <p class="err" data-err="cpo_challenge"></p>
+          </div>
+        </fieldset>
+
+        <!-- 3c. Partner / researcher -->
+        <fieldset class="fs" data-role-panel="partner">
+          <legend class="fs__legend">{f.partnerTitle}</legend>
+          <div class="field-row">
+            <div class="field" data-field="partner_org">
+              <label for="partner_org">{f.organization} <span class="req">{req}</span></label>
+              <input id="partner_org" name="partner_org" type="text" autocomplete="organization" maxlength="160" data-req="partner" />
+              <p class="err" data-err="partner_org"></p>
+            </div>
+            <div class="field" data-field="partner_expertise">
+              <label for="partner_expertise">{f.expertise} <span class="req">{req}</span></label>
+              <input id="partner_expertise" name="partner_expertise" type="text" maxlength="160" data-req="partner" />
+              <p class="err" data-err="partner_expertise"></p>
+            </div>
+          </div>
+          <fieldset class="field">
+            <legend>{f.interests} <span class="opt">{opt}</span></legend>
+            <div class="checks">
+              {t.about.partner.pathways.map((l, i) => (
+                <label class="check"><input type="checkbox" name="interests" value={['pilot', 'research', 'api', 'data', 'mentorship', 'institutional'][i]} /><span>{l}</span></label>
+              ))}
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="partner_message">{f.message} <span class="opt">{opt}</span></label>
+            <textarea id="partner_message" name="partner_message" rows="3" maxlength="1500"></textarea>
+          </div>
+        </fieldset>
+
+        <!-- 4. Consent + submit -->
+        <div class="fs fs--last">
+          <div class="field" data-field="consent">
+            <label class="check check--consent"><input type="checkbox" name="consent" value="yes" required /><span>{f.consent}<small>{f.consentHint}</small></span></label>
+            <p class="err" data-err="consent"></p>
+          </div>
+          <div class="field" data-field="captcha">
+            <div class="cf-turnstile" data-sitekey={siteKey} data-language={lang === 'km' ? 'km' : 'en'} data-size="flexible"></div>
+            <p class="err" data-err="captcha"></p>
+          </div>
+          <button class="btn btn--lg btn--primary form__submit" type="submit" data-submit>{f.submit}<Icon name="arrow" size={20} /></button>
+        </div>
+      </form>
+
+      <aside class="why">
+        <div class="card why__card">
+          <span class="row__icon"><Icon name="lock" /></span>
+          <h2 class="why__title">{f.whyTitle}</h2>
+          <p class="why__text">{f.why}</p>
+          <a class="textlink" href={p(lang, '/privacy/')}>{f.privacyLink}<Icon name="arrow" size={18} /></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .join { padding-top: var(--sp-7); }
+  .join__grid { display: grid; gap: var(--sp-6); }
+  @media (min-width: 1000px) { .join__grid { grid-template-columns: minmax(0, 1fr) 340px; gap: var(--sp-8); align-items: start; } .why { position: sticky; top: calc(var(--header-h) + var(--sp-5)); } }
+  .why { order: -1; }
+  @media (min-width: 1000px) { .why { order: 0; } }
+  .why__card { padding: var(--sp-5); display: grid; gap: var(--sp-3); justify-items: start; background: var(--pearl); }
+  .why__title { font-size: var(--fs-lg); }
+  .why__text { color: var(--muted); font-size: var(--fs-md); }
+
+  .form { display: grid; gap: var(--sp-5); }
+  .form__alert { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-4); border-radius: var(--r-md); background: var(--danger-soft); color: var(--danger); font-weight: 600; }
+  .form__alert[hidden] { display: none; }
+  .fs { border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-5); margin: 0; display: grid; gap: var(--sp-4); min-width: 0; }
+  @media (min-width: 700px) { .fs { padding: var(--sp-6); } }
+  .fs__legend { float: left; width: 100%; font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--sp-1); padding: 0; }
+  .fs__legend + * { clear: both; }
+  .fs--last { background: var(--pearl); }
+  [data-role-panel][hidden] { display: none; }
+
+  .roles { display: grid; gap: var(--sp-3); }
+  @media (min-width: 760px) { .roles { grid-template-columns: repeat(3, 1fr); } }
+  .role { position: relative; cursor: pointer; }
+  .role input { position: absolute; opacity: 0; inset: 0; }
+  .role__box { position: relative; height: 100%; display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-5) var(--sp-4); border-radius: var(--r-lg); border: 1px solid var(--line-strong); background: var(--white); transition: border-color 0.15s, box-shadow 0.15s; }
+  .role:hover .role__box { border-color: var(--azure); }
+  .role input:focus-visible + .role__box { outline: 3px solid var(--azure); outline-offset: 2px; }
+  .role input:checked + .role__box { border-color: var(--azure); box-shadow: inset 0 0 0 1px var(--azure); background: var(--azure-soft); }
+  .role__title { font-weight: 600; font-size: var(--fs-body); margin-top: var(--sp-2); }
+  .role__text { color: var(--muted); font-size: var(--fs-sm); }
+  .role__check { position: absolute; top: var(--sp-3); right: var(--sp-3); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--white); background: var(--white); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .role input:checked + .role__box .role__check { background: var(--azure); box-shadow: none; }
+
+  .field { display: grid; gap: var(--sp-2); border: 0; margin: 0; padding: 0; min-width: 0; }
+  .field-row { display: grid; gap: var(--sp-4); align-items: start; }
+  @media (min-width: 700px) { .field-row { grid-template-columns: 1fr 1fr; } }
+  .field label, .field legend { font-weight: 600; font-size: var(--fs-md); padding: 0; }
+  .req, .opt { font-weight: 400; color: var(--muted); font-size: var(--fs-sm); }
+  input[type='text'], select, textarea { width: 100%; min-height: var(--field-h); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--white); font-size: var(--fs-md); line-height: 1.5; }
+  :lang(km) input[type='text'], :lang(km) select, :lang(km) textarea { line-height: var(--lh-km); }
+  select { appearance: none; -webkit-appearance: none; padding-right: calc(var(--sp-6) + var(--sp-2)); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230B1F3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--sp-3) center; }
+  textarea { resize: vertical; }
+  input[type='text']:focus, select:focus, textarea:focus { outline: none; border-color: var(--azure); box-shadow: var(--focus-ring); }
+  .hint { font-size: var(--fs-sm); color: var(--muted); }
+  .err { font-size: var(--fs-sm); color: var(--danger); font-weight: 600; }
+  .err:empty { display: none; }
+  .is-invalid input[type='text'], .is-invalid select, .is-invalid textarea { border-color: var(--danger); }
+  .checks { display: grid; gap: var(--sp-2); }
+  @media (min-width: 700px) { .checks { grid-template-columns: 1fr 1fr; } }
+  .check { display: flex; gap: var(--sp-3); align-items: flex-start; min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); border: 1px solid var(--line); background: var(--white); cursor: pointer; font-weight: 400 !important; }
+  .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--azure); flex: none; }
+  .check--consent { border-color: var(--line-strong); }
+  .check--consent small { display: block; color: var(--muted); font-size: var(--fs-sm); margin-top: var(--sp-1); }
+  .form__submit { justify-self: start; }
+  .form__submit[disabled] { opacity: 0.7; cursor: progress; }
+  @media (max-width: 520px) { .form__submit { width: 100%; } }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  if (form) {
+    const d = form.dataset;
+    const panels = form.querySelectorAll<HTMLElement>('[data-role-panel]');
+    const alertBox = form.querySelector<HTMLElement>('[data-alert]')!;
+    const alertText = form.querySelector<HTMLElement>('[data-alert-text]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const submitHTML = submit.innerHTML;
+    const titleMsg = alertText.textContent || '';
+
+    const currentRole = () => (form.querySelector<HTMLInputElement>('input[name="role"]:checked')?.value ?? '');
+    const showRole = (role: string) => panels.forEach((p) => { p.hidden = role !== '' && p.dataset.rolePanel !== role; if (role === '') p.hidden = true; });
+
+    // Preselect from ?role= (e.g. "Become Our Partner" → ?role=partner)
+    const pre = new URLSearchParams(location.search).get('role');
+    const preInput = pre ? form.querySelector<HTMLInputElement>(`input[name="role"][value="${CSS.escape(pre)}"]`) : null;
+    if (preInput) preInput.checked = true;
+    showRole(currentRole());
+    form.addEventListener('change', (e) => { if ((e.target as HTMLInputElement).name === 'role') { showRole(currentRole()); setErr('role', ''); } });
+
+    function setErr(name: string, msg: string) {
+      const el = form!.querySelector<HTMLElement>(`[data-err="${name}"]`);
+      if (el) el.textContent = msg;
+      form!.querySelector(`[data-field="${name}"]`)?.classList.toggle('is-invalid', !!msg);
+      const input = form!.querySelector<HTMLElement>(`[name="${name}"]`);
+      if (input) { msg ? input.setAttribute('aria-invalid', 'true') : input.removeAttribute('aria-invalid'); }
+    }
+
+    function validate(): string[] {
+      const bad: string[] = [];
+      const fd = new FormData(form!);
+      const role = currentRole();
+      const val = (n: string) => String(fd.get(n) ?? '').trim();
+      if (!role) { setErr('role', d.msgRole!); bad.push('role'); } else setErr('role', '');
+      for (const n of ['name', 'contact_value']) { if (!val(n)) { setErr(n, d.msgRequired!); bad.push(n); } else setErr(n, ''); }
+      form!.querySelectorAll<HTMLInputElement>('[data-req]').forEach((el) => {
+        const need = el.dataset.req === role;
+        if (need && !el.value.trim()) { setErr(el.name, d.msgRequired!); bad.push(el.name); } else setErr(el.name, '');
+      });
+      if (!fd.get('consent')) { setErr('consent', d.msgConsent!); bad.push('consent'); } else setErr('consent', '');
+      const token = String(fd.get('cf-turnstile-response') ?? '');
+      if ((window as any).turnstile && !token) { setErr('captcha', d.msgCaptcha!); bad.push('captcha'); } else setErr('captcha', '');
+      return bad;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bad = validate();
+      if (bad.length) {
+        alertText.textContent = titleMsg; alertBox.hidden = false;
+        const first = form.querySelector<HTMLElement>(`[name="${bad[0]}"]`);
+        first?.focus({ preventScroll: true });
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      alertBox.hidden = true;
+      submit.disabled = true; submit.textContent = d.msgSending!;
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) { location.href = `${d.thanks}?role=${encodeURIComponent(currentRole())}`; return; }
+        if (data.fields) {
+          for (const [n, code] of Object.entries<string>(data.fields)) setErr(n, code === 'captcha' ? d.msgCaptcha! : code === 'consent' ? d.msgConsent! : d.msgRequired!);
+          throw new Error('fields');
+        }
+        throw new Error(data.error || 'failed');
+      } catch (err) {
+        alertText.textContent = (err as Error).message === 'fields' ? titleMsg : d.msgGeneric!; alertBox.hidden = false;
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (window as any).turnstile?.reset();
+      } finally {
+        submit.disabled = false; submit.innerHTML = submitHTML;
+      }
+    });
+  }
+</script>

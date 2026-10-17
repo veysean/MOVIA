@@ -1,0 +1,74 @@
+---
+/* Illustrative rendering of the rider-app prototype Home screen.
+   Data is illustrative only — the caption below says so (handover §4.01). */
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { getDict, type Lang } from '../i18n';
+const { lang } = Astro.props as { lang: Lang };
+const m = getDict(lang).mock;
+const cap = getDict(lang).home.hero.mockCaption;
+const pct = 64, r = 34, c = 2 * Math.PI * r;
+---
+<figure class="mock">
+  <div class="phone" aria-hidden="true">
+    <div class="phone__screen">
+      <div class="ph-status"><span>9:41</span><span class="ph-island"></span><span>●●● ▮</span></div>
+      <div class="ph-top">
+        <div><p class="ph-cap">{m.greeting}</p><p class="ph-name"><Logo height={18} alt="" /></p></div>
+        <span class="ph-avatar"><Icon name="user" size={16} /></span>
+      </div>
+      <div class="ph-card ph-batt">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle cx="42" cy="42" r={r} fill="none" style="stroke: var(--line)" stroke-width="8" />
+          <circle cx="42" cy="42" r={r} fill="none" style="stroke: var(--ok)" stroke-width="8" stroke-linecap="round" stroke-dasharray={`${(c * pct) / 100} ${c}`} transform="rotate(-90 42 42)" />
+          <text x="42" y="47" text-anchor="middle" font-size="17" font-weight="700" style="fill: var(--navy)">{pct}%</text>
+        </svg>
+        <div>
+          <p class="ph-cap">{m.battery}</p>
+          <p class="ph-big">182 km</p>
+          <p class="ph-cap">{m.range}</p>
+        </div>
+      </div>
+      <div class="ph-search"><Icon name="search" size={16} />{m.where}</div>
+      <p class="ph-h">{m.nearby}</p>
+      <div class="ph-group">
+        <div class="ph-row"><span class="ph-ic"><Icon name="bolt" size={16} /></span><span class="ph-grow"><b>{m.hubA}</b><small>1.2 km · DC 60 kW</small></span><span class="ph-pill ok"><Icon name="check" size={12} />{m.free}</span></div>
+        <div class="ph-row"><span class="ph-ic"><Icon name="bolt" size={16} /></span><span class="ph-grow"><b>{m.hubB}</b><small>3.4 km · AC 22 kW</small></span><span class="ph-pill">{m.inUse}</span></div>
+      </div>
+      <div class="ph-tabs">
+        {m.tabs.map((tab, i) => <span class={i === 0 ? 'on' : ''}><Icon name={['home', 'bolt', 'wrench', 'user'][i]} size={18} />{tab}</span>)}
+      </div>
+    </div>
+  </div>
+  <figcaption class="cap">{cap}</figcaption>
+</figure>
+<style>
+  .mock { display: grid; justify-items: center; gap: var(--sp-3); }
+  .phone { width: 300px; padding: 10px; border-radius: 46px; background: var(--navy); box-shadow: 0 30px 60px -20px rgba(11, 31, 58, 0.35); }
+  .phone__screen { border-radius: 37px; background: var(--pearl); overflow: hidden; padding: 10px 14px 0; font-size: 12px; line-height: 1.35; color: var(--navy); }
+  .ph-status { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 11px; padding: 2px 8px 8px; }
+  .ph-island { width: 74px; height: 20px; border-radius: 12px; background: var(--navy); }
+  .ph-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .ph-name { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 15px; }
+  .ph-cap { font-size: 11px; color: var(--muted); }
+  .ph-avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--azure-soft); color: var(--azure); }
+  .ph-card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .ph-batt { display: flex; gap: 14px; align-items: center; }
+  .ph-big { font-size: 22px; font-weight: 700; }
+  .ph-search { display: flex; gap: 8px; align-items: center; margin-top: 10px; padding: 11px 12px; border-radius: 12px; background: var(--white); border: 1px solid var(--line); color: var(--muted); }
+  .ph-h { margin: 14px 0 6px; font-weight: 600; font-size: 13px; }
+  .ph-group { background: var(--white); border: 1px solid var(--line); border-radius: 16px; }
+  .ph-row { display: flex; gap: 10px; align-items: center; padding: 10px 12px; }
+  .ph-row + .ph-row { border-top: 1px solid var(--line); }
+  .ph-ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--saffron-soft); color: var(--saffron-text); flex: none; }
+  .ph-grow { flex: 1; min-width: 0; display: grid; }
+  .ph-grow b { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ph-grow small { color: var(--muted); font-size: 10.5px; }
+  .ph-pill { display: inline-flex; gap: 3px; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 600; background: var(--pearl); color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); white-space: nowrap; }
+  .ph-pill.ok { background: var(--ok-soft); color: var(--ok-text); box-shadow: none; }
+  .ph-tabs { display: flex; justify-content: space-around; margin: 14px -14px 0; padding: 8px 4px 16px; background: var(--white); border-top: 1px solid var(--line); }
+  .ph-tabs span { display: grid; justify-items: center; gap: 2px; font-size: 10px; color: var(--muted); }
+  .ph-tabs span.on { color: var(--azure); font-weight: 600; }
+  :lang(km) .phone__screen { line-height: var(--lh-km-tight); }
+  @media (max-width: 380px) { .phone { width: 268px; } }
+</style>

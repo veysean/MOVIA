@@ -1,0 +1,77 @@
+/* =========================================================================
+   MOVIA design tokens — website
+   Colours, radii, hairlines and contrast rules are IDENTICAL to the rider-app
+   prototype (Constitution v7.1.0, Principle V). The website only adds a larger
+   display type scale and wider layout sizes. Never add one-off colours or
+   pixel values in components — add a token here instead.
+   ========================================================================= */
+:root {
+  /* colour — brand */
+  --azure: #004e9f;        /* Steel Azure: primary actions, links, headings accents */
+  --azure-deep: #003a78;   /* hover/pressed for azure */
+  --azure-soft: #e8f0f9;   /* secondary buttons, soft fills */
+  --azure-soft-hover: #d9e6f5;
+  --saffron: #f98f11;      /* Deep Saffron: ENERGY + charging accents ONLY */
+  --saffron-soft: #ffebd1;
+  --saffron-text: #a85a00; /* use when saffron-coloured TEXT is needed (5.1:1) */
+  --pearl: #f8fafc;
+  --white: #ffffff;
+  --navy: #0b1f3a;         /* body text */
+  --muted: rgba(11, 31, 58, 0.68);
+  --line: rgba(11, 31, 58, 0.1);
+  --line-strong: rgba(11, 31, 58, 0.18);
+  --header-bg: rgba(255, 255, 255, 0.92);
+
+  /* colour — on dark (navy footer, azure CTA band) */
+  --on-dark-muted: rgba(255, 255, 255, 0.8);
+  --on-dark-line: rgba(255, 255, 255, 0.14);
+  --on-dark-fill: rgba(255, 255, 255, 0.12);
+  --on-dark-fill-hover: rgba(255, 255, 255, 0.2);
+  --saffron-on-dark: #ffc98a;              /* saffron-family TEXT on navy only */
+  --saffron-tint-dark: rgba(249, 143, 17, 0.16);
+
+  /* colour — semantic states (same as app) */
+  --ok: #2f9e68; --ok-soft: #ddf0e5; --ok-text: #1e7a4c;
+  --warn: #b9860f; --warn-soft: #f6eacb; --warn-text: #8a6100;
+  --danger: #b3261e; --danger-soft: #fbe9e7;
+
+  /* type — app scale + web display sizes */
+  --font: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Noto Sans Khmer', 'Khmer OS Battambang', 'Leelawadee UI', sans-serif;
+  --fs-xs: 13px;
+  --fs-sm: 14px;
+  --fs-md: 16px;
+  --fs-body: 17px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fs-2xl: clamp(28px, 3.6vw, 40px);
+  --fs-lead: clamp(20px, 2vw, 24px);       /* emphasised statements (mission/vision) */
+  --fs-3xl: clamp(36px, 5vw, 52px);        /* page titles (inner pages, 404, thanks) */
+  --fs-hero: clamp(40px, 6.4vw, 68px);
+  --fs-hero-km: clamp(36px, 5.2vw, 56px);  /* Khmer needs a smaller hero for its taller glyph stacks */
+
+  /* Khmer line-heights: never below 1.6 or stacked vowels/subscripts clip */
+  --lh-km: 1.75;
+  --lh-km-tight: 1.6;
+
+  /* space — 4/8 grid */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --sp-6: 32px; --sp-7: 48px; --sp-8: 72px; --sp-9: 112px;
+  --gutter: 20px;
+  --wrap: 1160px;
+  --tap: 44px;
+  --tap-lg: 52px;
+  --field-h: 48px;
+  --header-h: 68px;
+
+  /* shape & depth — same as app: hairlines for structure, one soft lift */
+  --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 18px; --r-xl: 28px; --r-pill: 999px;
+  --lift: 0 6px 20px rgba(11, 31, 58, 0.12);
+  --shadow-xs: 0 1px 2px rgba(11, 31, 58, 0.12);
+  --focus-ring: 0 0 0 3px rgba(0, 78, 159, 0.18);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  :root { --gutter: 32px; }
+}

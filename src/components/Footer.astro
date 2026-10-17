@@ -1,0 +1,41 @@
+---
+import Logo from './Logo.astro';
+import { getDict, p, type Lang } from '../i18n';
+import { site } from '../data/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = getDict(lang);
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <a class="brand footer__brand" href={p(lang, '/')}><Logo tone="white" height={40} /></a>
+        <p class="footer__tag">{t.meta.tagline}</p>
+        <p class="footer__note">{t.footer.note}</p>
+      </div>
+      <div>
+        <p class="footer__h">{t.footer.explore}</p>
+        <ul class="footer__list">
+          <li><a href={p(lang, '/')}>{t.nav.home}</a></li>
+          <li><a href={p(lang, '/about/')}>{t.nav.about}</a></li>
+          <li><a href={p(lang, '/join/')}>{t.nav.joinUs}</a></li>
+          <li><a href={p(lang, '/privacy/')}>{t.footer.privacy}</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer__h">{t.footer.connect}</p>
+        <ul class="footer__list">
+          <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+          {site.linkedin && <li><a href={site.linkedin} rel="noopener">LinkedIn</a></li>}
+          {site.telegram && <li><a href={site.telegram} rel="noopener">Telegram</a></li>}
+        </ul>
+      </div>
+    </div>
+    <div class="footer__base">
+      <span>© {year} {t.footer.rights} · {t.meta.tagline}</span>
+      <span class="badge badge--prelaunch"><span class="dot"></span>{t.common.prelaunch}</span>
+    </div>
+  </div>
+</footer>

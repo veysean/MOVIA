@@ -1,0 +1,19 @@
+---
+/* Root: send visitors to /km/ if their browser prefers Khmer, otherwise /en/. */
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>MOVIA — Confidence in Every Motion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href="/en/" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48" />
+    <script is:inline>
+      var l = (navigator.languages || [navigator.language || '']).join(',').toLowerCase();
+      location.replace(/(^|,)km/.test(l) ? '/km/' : '/en/');
+    </script>
+    <meta http-equiv="refresh" content="0; url=/en/" />
+  </head>
+  <body><a href="/en/">English</a> · <a href="/km/">ខ្មែរ</a></body>
+</html>

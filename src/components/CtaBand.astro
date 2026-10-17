@@ -1,0 +1,21 @@
+---
+import { getDict, p, type Lang } from '../i18n';
+interface Props { lang: Lang; title: string; text: string }
+const { lang, title, text } = Astro.props;
+const t = getDict(lang);
+---
+<section class="band">
+  <svg class="band__art" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+    <path d="M20 340 C 120 340, 120 220, 200 220 S 300 80, 380 60" stroke="currentColor" stroke-width="10" stroke-linecap="round" />
+    <path d="M20 380 C 140 380, 160 280, 240 270 S 340 180, 390 160" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 14" />
+    <circle cx="380" cy="60" r="18" style="fill: var(--saffron)" />
+  </svg>
+  <div class="wrap">
+    <h2 class="band__title">{title}</h2>
+    <p class="band__text">{text}</p>
+    <div class="btn-row">
+      <a class="btn btn--lg btn--onDark" href={p(lang, '/join/')}>{t.nav.joinUs}</a>
+      <a class="btn btn--lg btn--ghostDark" href={p(lang, '/about/')}>{t.nav.moveWithUs}</a>
+    </div>
+  </div>
+</section>
