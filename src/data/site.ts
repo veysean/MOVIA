@@ -1,11 +1,11 @@
 /**
  * Site-wide settings. Change these in ONE place.
- * ⚠️ TO CONFIRM: the public email and LinkedIn page. Until a domain is bought,
- * use a shared team inbox (e.g. a Gmail) the whole team can read.
+ * email: the team's shared inbox (confirmed by the team, Oct 2026). Switch it once a domain exists.
+ * linkedin / facebook: leave '' to hide. Use clean page URLs, without tracking parameters.
  */
 export const site = {
-  email: 'hello@movia.app', // [TO CONFIRM] replace with the real shared inbox
-  emailConfirmed: false,
+  email: 'movia@gmail.com',
+  emailConfirmed: true,
   linkedin: '', // e.g. 'https://www.linkedin.com/company/movia-kh' — leave '' to hide
-  telegram: '', // optional public channel — leave '' to hide
+  facebook: 'https://www.facebook.com/share/1FLR9SV7Zm/',
 };

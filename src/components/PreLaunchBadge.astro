@@ -1,5 +1,6 @@
 ---
 import { getDict, type Lang } from '../i18n';
-const { lang } = Astro.props as { lang: Lang };
+/* `pulse`: soft ring on the dot (Home hero only); off under prefers-reduced-motion. */
+const { lang, pulse = false } = Astro.props as { lang: Lang; pulse?: boolean };
 ---
-<span class="badge badge--prelaunch"><span class="dot" aria-hidden="true"></span>{getDict(lang).common.prelaunch}</span>
+<span class="badge badge--prelaunch"><span class:list={['dot', { pulse }]} aria-hidden="true"></span>{getDict(lang).common.prelaunch}</span>

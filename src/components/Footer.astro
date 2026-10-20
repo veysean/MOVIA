@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import LangToggle from './LangToggle.astro';
 import { getDict, p, type Lang } from '../i18n';
 import { site } from '../data/site';
 interface Props { lang: Lang }
@@ -15,21 +16,22 @@ const year = new Date().getFullYear();
         <p class="footer__tag">{t.meta.tagline}</p>
         <p class="footer__note">{t.footer.note}</p>
       </div>
-      <div>
-        <p class="footer__h">{t.footer.explore}</p>
+      <nav id="footer-nav" aria-labelledby="footer-explore">
+        <p class="footer__h" id="footer-explore">{t.footer.explore}</p>
         <ul class="footer__list">
           <li><a href={p(lang, '/')}>{t.nav.home}</a></li>
           <li><a href={p(lang, '/about/')}>{t.nav.about}</a></li>
           <li><a href={p(lang, '/join/')}>{t.nav.joinUs}</a></li>
           <li><a href={p(lang, '/privacy/')}>{t.footer.privacy}</a></li>
         </ul>
-      </div>
+        <LangToggle lang={lang} class="footer__lang" />
+      </nav>
       <div>
         <p class="footer__h">{t.footer.connect}</p>
         <ul class="footer__list">
           <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
           {site.linkedin && <li><a href={site.linkedin} rel="noopener">LinkedIn</a></li>}
-          {site.telegram && <li><a href={site.telegram} rel="noopener">Telegram</a></li>}
+          {site.facebook && <li><a href={site.facebook} rel="noopener">Facebook</a></li>}
         </ul>
       </div>
     </div>

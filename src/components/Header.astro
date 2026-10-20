@@ -26,6 +26,8 @@ const links = [
       <span class="sr-only">{t.nav.menu}</span>
       <Icon name="menu" class="i-open" /><Icon name="close" class="i-close" />
     </button>
+    {/* without JS the menu panel can't open: the same icon jumps to the footer navigation instead */}
+    <noscript><a class="menu-btn menu-btn--nojs" href="#footer-nav"><span class="sr-only">{t.nav.menu}</span><Icon name="menu" /></a><style>.menu-btn[data-menu] { display: none; }</style></noscript>
   </div>
   <div class="mobile-nav" id="mobile-nav" hidden>
     {links.map((l) => <a class="nav__link" href={l.href} aria-current={page === l.key ? 'page' : undefined}>{l.label}</a>)}
@@ -48,7 +50,12 @@ const links = [
   if (btn && panel) {
     const set = (open: boolean) => { btn.setAttribute('aria-expanded', String(open)); panel.hidden = !open; };
     btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || btn.getAttribute('aria-expanded') !== 'true') return;
+      const inside = panel.contains(document.activeElement);
+      set(false);
+      if (inside) btn.focus(); // never leave focus inside the hidden panel
+    });
     window.addEventListener('resize', () => { if (window.innerWidth >= 960) set(false); });
   }
 </script>

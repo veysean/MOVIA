@@ -1,6 +1,6 @@
 ---
 /* Official MOVIA logo (pin-in-circle + serif wordmark). Images are cropped from the
-   originals in /public/brand/ — never recolour them. `tone`: navy wordmark for light
+   originals in /assets/brand-src/ (not published) — never recolour them. `tone`: navy wordmark for light
    backgrounds, white wordmark for dark. `variant="symbol"` = pin-in-circle only. */
 interface Props { tone?: 'navy' | 'white'; height?: number; variant?: 'lockup' | 'symbol'; alt?: string }
 const { tone = 'navy', height = 36, variant = 'lockup', alt = 'MOVIA' } = Astro.props;

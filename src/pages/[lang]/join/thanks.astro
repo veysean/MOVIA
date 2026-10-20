@@ -7,13 +7,17 @@ const lang = Astro.params.lang as Lang;
 const t = getDict(lang);
 const th = t.join.thanks;
 ---
-<Base lang={lang} title={t.meta.thanks} page="join" noindex>
-  <section class="section thanks">
-    <div class="wrap thanks__in">
+<Base lang={lang} title={t.meta.thanks} description={th.text} page="join" noindex>
+  <section class="pagehero on-dark">
+    <div class="wrap">
       <span class="thanks__icon"><Icon name="check" size={36} /></span>
       <p class="eyebrow">{th.eyebrow}</p>
       <h1 class="pagehero__title">{th.title}</h1>
       <p class="pagehero__lede">{th.text}</p>
+    </div>
+  </section>
+  <section class="section bg-glow thanks">
+    <div class="wrap thanks__in">
       <div class="card thanks__next">
         <h2 class="thanks__h">{th.nextTitle}</h2>
         <ol class="steps">{th.next.map((s, i) => <li><span class="steps__n">{i + 1}</span><span>{s}</span></li>)}</ol>
@@ -26,12 +30,11 @@ const th = t.join.thanks;
   </section>
 </Base>
 <style>
-  .thanks { background: var(--pearl); }
-  .thanks__in { display: grid; gap: var(--sp-3); justify-items: start; max-width: 760px; }
-  .thanks__icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok-text); margin-bottom: var(--sp-3); }
-  .thanks__next { width: 100%; padding: var(--sp-6); margin: var(--sp-5) 0; }
+  .thanks__in { display: grid; gap: var(--sp-3); justify-items: start; max-width: var(--measure); }
+  .thanks__icon { width: var(--avatar); height: var(--avatar); border-radius: 50%; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok-text); margin-bottom: var(--sp-4); }
+  .thanks__next { width: 100%; padding: var(--sp-6); margin-bottom: var(--sp-5); }
   .thanks__h { font-size: var(--fs-lg); margin-bottom: var(--sp-4); }
   .steps { display: grid; gap: var(--sp-4); }
   .steps li { display: flex; gap: var(--sp-3); align-items: flex-start; }
-  .steps__n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--azure-soft); color: var(--azure); font-weight: 700; font-size: var(--fs-sm); }
+  .steps__n { width: var(--step-size); height: var(--step-size); border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--azure-soft); color: var(--azure); font-weight: 700; font-size: var(--fs-sm); }
 </style>

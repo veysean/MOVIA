@@ -29,11 +29,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     fd = await request.formData();
   } catch {
-    return reply(wantsJson, 400, { ok: false, error: 'bad_request' }, '/en/join/?error=1');
+    return reply(wantsJson, 400, { ok: false, error: 'bad_request' }, '/en/join/?error=1#form-error');
   }
 
   const lang = s(fd, 'lang') === 'km' ? 'km' : 'en';
-  const back = `/${lang}/join/?error=1`;
+  const back = `/${lang}/join/?error=1#form-error`; // #form-error shows the alert without JS
   const role = s(fd, 'role') as Role;
   const fields: Record<string, string> = {};
 

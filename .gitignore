@@ -3,6 +3,14 @@ dist/
 .astro/
 .wrangler/
 .dev.vars
+.env
+.env.*
+!.env.example
+# full-size originals (team photos etc.); only resized copies go in public/
+originals/
+# event photo originals stay on the team's computers; only optimised copies in public/img/ are pushed
+assets/*
+!assets/brand-src/
 interest-export.json
 *.local
 .DS_Store

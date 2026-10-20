@@ -4,85 +4,120 @@ import Icon from '../../components/Icon.astro';
 import PhoneMock from '../../components/PhoneMock.astro';
 import PreLaunchBadge from '../../components/PreLaunchBadge.astro';
 import CtaBand from '../../components/CtaBand.astro';
+import Logo from '../../components/Logo.astro';
 import { getDict, p, staticLangPaths, type Lang } from '../../i18n';
+import { stats } from '../../data/stats';
 
 export const getStaticPaths = staticLangPaths;
 const lang = Astro.params.lang as Lang;
 const t = getDict(lang);
 const h = t.home;
+// Hero background photo: the wide crop when it exists, else the deck-cover illustration
+// (hero-road, 1519×1080 from the Canva deck; original in assets/hero/). With neither, the hero
+// falls back to the royal gradient alone. Each size comes as .avif/.webp/.jpg; a `-1024` copy
+// serves smaller screens.
+const files = Object.keys(import.meta.glob('/public/img/home/*.{jpg,webp,avif}'));
+const has = (f: string) => files.includes(`/public/img/home/${f}`);
+const wide = has('hero-road-wide.jpg');
+const heroBase = wide ? 'hero-road-wide' : has('hero-road.jpg') ? 'hero-road' : null;
+const heroW = wide ? 2400 : 1519;
+const heroH = wide ? 1200 : 1080;
+const srcset = (ext: string) => [has(`${heroBase}-1024.${ext}`) && `/img/home/${heroBase}-1024.${ext} 1024w`, has(`${heroBase}.${ext}`) && `/img/home/${heroBase}.${ext} ${heroW}w`].filter(Boolean).join(', ');
+// shown at ~native size on the right from 1024px (hero height × image ratio ≈ 1070px), full-bleed below
+const heroSizes = wide ? '100vw' : '(min-width: 1024px) 1070px, 100vw';
+// "$10M" → prefix "$", count 10, suffix "M"; "22,793" keeps its thousands separator while counting
+const countParts = (v: string) => {
+  const m = v.match(/^(\D*)([\d,]+)(\D*)$/);
+  return m ? { prefix: m[1], count: m[2].replace(/,/g, ''), suffix: m[3], sep: m[2].includes(',') ? '1' : '0' } : null;
+};
 const pillarIcon: Record<string, string> = { energy: 'bolt', life: 'life', destination: 'pin' };
-const impactIcon: Record<string, string> = { drivers: 'car', cpo: 'plug', cities: 'city' };
 ---
 <Base lang={lang} title={t.meta.home} page="home">
-  <!-- 01 Hero -->
-  <section class="hero">
-    <div class="wrap hero__grid">
+  <!-- 01 Hero: full-bleed road photo (decorative) + navy scrim, copy on the left -->
+  <section class="hero on-dark">
+    {heroBase && (
+      <div class={`hero__bg ${wide ? '' : 'hero__bg--native'}`} data-parallax>
+        <picture>
+          {srcset('avif') && <source srcset={srcset('avif')} sizes={heroSizes} type="image/avif" />}
+          {srcset('webp') && <source srcset={srcset('webp')} sizes={heroSizes} type="image/webp" />}
+          <img src={`/img/home/${heroBase}.jpg`} srcset={srcset('jpg')} sizes={heroSizes} alt="" width={heroW} height={heroH} fetchpriority="high" />
+        </picture>
+      </div>
+    )}
+    <div class="wrap hero__in">
       <div class="hero__copy">
-        <PreLaunchBadge lang={lang} />
+        <PreLaunchBadge lang={lang} pulse />
+        <Logo tone="white" height={44} />
         <h1 class="hero__title">{h.hero.title}</h1>
         <p class="hero__lede">{h.hero.lede}</p>
         <div class="btn-row hero__ctas">
-          <a class="btn btn--lg btn--primary" href={p(lang, '/join/')}>{h.hero.ctaJoin}<Icon name="arrow" size={20} /></a>
-          <a class="btn btn--lg btn--soft" href={p(lang, '/about/')}>{h.hero.ctaMove}</a>
+          <a class="btn btn--lg btn--onDark" href={p(lang, '/join/')}>{h.hero.ctaJoin}<Icon name="arrow" size={20} /></a>
+          <a class="btn btn--lg btn--glass" href={p(lang, '/about/')}>{h.hero.ctaMove}</a>
         </div>
-      </div>
-      <div class="hero__art">
-        <svg class="hero__route" viewBox="0 0 520 560" fill="none" aria-hidden="true">
-          <path d="M40 520 C 160 520, 140 360, 260 340 S 420 200, 480 60" stroke="currentColor" stroke-opacity=".14" stroke-width="22" stroke-linecap="round" />
-          <path d="M40 520 C 160 520, 140 360, 260 340 S 420 200, 480 60" stroke="currentColor" stroke-opacity=".35" stroke-width="2" stroke-dasharray="3 10" stroke-linecap="round" />
-          <circle cx="480" cy="60" r="12" style="fill: var(--saffron)" />
-          <circle cx="40" cy="520" r="8" fill="currentColor" />
-        </svg>
-        <PhoneMock lang={lang} />
       </div>
     </div>
   </section>
 
-  <!-- 02 Problem insight: ONE sentence only -->
-  <section class="section section--tight insight">
+  <!-- 02 The insight: intro sentence + public market figures (src/data/stats.ts) -->
+  <section class="section bg-glow insight" aria-labelledby="insight-title">
     <div class="wrap">
-      <p class="eyebrow">{h.problem.eyebrow}</p>
-      <p class="insight__text">{h.problem.text}</p>
+      <div class="section__head section__head--center">
+        <p class="eyebrow">{h.insight.eyebrow}</p>
+        <h2 class="section__title insight__text" id="insight-title">{h.insight.text}</h2>
+      </div>
+      <ul class="stats" aria-label={h.insight.statsLabel}>
+        {stats.map((s) => (
+          <li class="stat">
+            <p class="stat__value">
+              <span class="sr-only">{s.value}</span>
+              {/* visual copy only: motion.ts counts it up; it already holds the final value without JS */}
+              <span aria-hidden="true" data-count={countParts(s.value)?.count} data-prefix={countParts(s.value)?.prefix} data-suffix={countParts(s.value)?.suffix} data-sep={countParts(s.value)?.sep}>{s.value}</span>
+            </p>
+            <p class="stat__label">{s.label[lang]}</p>
+            <p class="cap stat__context">{s.context[lang]}</p>
+            <p class="cap stat__source">
+              {h.insight.sourcePrefix}{' '}
+              <a href={s.source.url} target="_blank" rel="noopener">{s.source.name[lang]}<span class="sr-only"> {h.insight.newTab}</span></a>
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p class="cap insight__note"><Icon name="info" size={16} />{h.insight.note}</p>
     </div>
   </section>
 
   <!-- 03 Three pillars -->
-  <section class="section section--pearl" id="pillars">
+  <section class="section bg-dawn" id="pillars">
     <div class="wrap">
       <div class="section__head">
         <p class="eyebrow">{h.pillars.eyebrow}</p>
         <h2 class="section__title">{h.pillars.title}</h2>
       </div>
+      <div class="pillars pillars--mock">
       <ul class="grid-3">
         {h.pillars.items.map((it) => (
           <li class={`card pillar pillar--${it.key}`}>
-            <span class={`row__icon ${it.key === 'energy' ? 'row__icon--saffron' : ''}`}><Icon name={pillarIcon[it.key]} /></span>
+            <span class={`row__icon ${it.key === 'energy' ? 'row__icon--saffron pulse' : ''}`}><Icon name={pillarIcon[it.key]} /></span>
             <h3 class="pillar__name">{it.name}</h3>
             <p class="pillar__text">{it.text}</p>
           </li>
         ))}
       </ul>
+      <PhoneMock lang={lang} />
+      </div>
       <p class="cap pillars__note"><Icon name="info" size={16} />{h.pillars.note}</p>
     </div>
   </section>
 
-  <!-- 04 Impact preview -->
-  <section class="section" id="impact">
-    <div class="wrap impact">
-      <div class="section__head impact__head">
+  <!-- 04 Explore our impact: pointer to the evidence-tiered About#impact section -->
+  <section class="section section--tight bg-sky" id="impact">
+    <div class="wrap">
+      <div class="section__head section__head--center impact">
         <p class="eyebrow">{h.impact.eyebrow}</p>
         <h2 class="section__title">{h.impact.title}</h2>
-        <p class="cap impact__note">{h.impact.note}</p>
-        <a class="textlink" href={p(lang, '/about/#impact')}>{h.impact.link}<Icon name="arrow" size={18} /></a>
+        <p class="section__lede">{h.impact.text}</p>
+        <a class="btn btn--lg btn--soft impact__cta" href={p(lang, '/about/#impact')}>{h.impact.cta}<Icon name="arrow" size={20} /></a>
       </div>
-      <ul class="group">
-        {h.impact.items.map((it) => (
-          <li class="row">
-            <span class="row__icon"><Icon name={impactIcon[it.key]} /></span>
-            <div><p class="row__title">{it.who}</p><p class="row__text">{it.text}</p></div>
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 
@@ -91,34 +126,77 @@ const impactIcon: Record<string, string> = { drivers: 'car', cpo: 'plug', cities
 </Base>
 
 <style>
-  .hero { position: relative; background: var(--pearl); border-bottom: 1px solid var(--line); overflow: hidden; }
-  .hero__grid { display: grid; gap: var(--sp-7); padding-top: var(--sp-7); padding-bottom: var(--sp-8); align-items: center; }
-  .hero__title { font-size: var(--fs-hero); line-height: 1.04; letter-spacing: -0.025em; margin-top: var(--sp-5); max-width: 12ch; }
+  /* layers: royal fallback → photo → navy scrim (::before) → copy; 4px spectrum line along the bottom (::after) */
+  .hero { position: relative; isolation: isolate; overflow: hidden; display: grid; align-items: end; min-height: var(--hero-h-mobile); background: var(--grad-royal); }
+  .hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--grad-hero-overlay-mobile); }
+  .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: var(--rule-h); background: var(--grad-spectrum); }
+  .hero__bg { position: absolute; inset: calc(var(--hero-bleed) * -1) 0; z-index: -2; }
+  .hero__bg picture { display: block; height: 100%; }
+  .hero__bg img { width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 70% center; }
+  .hero__in { padding-top: var(--sp-8); padding-bottom: calc(var(--sp-7) + var(--rule-h)); }
+  .hero__copy { display: grid; gap: var(--sp-5); justify-items: start; max-width: var(--hero-copy-w); }
+  .hero__title { font-size: var(--fs-hero); line-height: 1.04; letter-spacing: -0.025em; max-width: 12ch; }
   :lang(km) .hero__title { line-height: var(--lh-km-tight); letter-spacing: 0; font-size: var(--fs-hero-km); }
-  .hero__lede { margin-top: var(--sp-5); font-size: var(--fs-lg); color: var(--muted); max-width: 40ch; }
-  .hero__ctas { margin-top: var(--sp-6); }
-  .hero__art { position: relative; display: grid; place-items: center; }
-  .hero__route { color: var(--azure); position: absolute; inset: -10% -20% -10% -10%; width: 130%; height: 120%; }
-  .hero__art :global(.mock) { position: relative; }
-  @media (min-width: 960px) {
-    .hero__grid { grid-template-columns: 1.1fr 0.9fr; padding-top: var(--sp-8); padding-bottom: var(--sp-9); }
+  .hero__lede { font-size: var(--fs-lg); color: var(--on-dark-muted); max-width: 40ch; }
+  .hero__ctas { margin-top: var(--sp-2); }
+  /* scrim measured against white copy (≥4.5:1 lede, ≥3:1 title at its lightest point):
+     vertical below 1024px (copy sits low), stronger horizontal 1024–1199px, spec scrim from 1200px */
+  @media (min-width: 768px) { .hero { min-height: var(--hero-h); } }
+  @media (min-width: 1024px) {
+    .hero { align-items: center; }
+    .hero::before { background: var(--grad-hero-overlay-tablet); }
+    .hero__bg img { object-position: right center; }
+    .hero__in { padding-top: var(--sp-8); padding-bottom: var(--sp-8); }
+  }
+  @media (min-width: 1200px) { .hero::before { background: var(--grad-hero-overlay); } }
+  /* Only the 897 px photo exists: on wide screens, stretching it full-bleed made it blurry (~2×).
+     Show it on the right at about its real size instead, its left edge fading into the royal
+     background behind the copy. A 2400 px `hero-road-wide.jpg` switches back to full-bleed. */
+  @media (min-width: 1024px) {
+    .hero__bg--native { left: auto; width: auto; aspect-ratio: var(--hero-img-ratio); max-width: 100%;
+      -webkit-mask-image: linear-gradient(to right, transparent, black var(--hero-img-fade));
+      mask-image: linear-gradient(to right, transparent, black var(--hero-img-fade)); }
+  }
+  /* image only (the copy never moves): slow float + soft parallax, desktop pointers only, max 20px
+     (float ±--float-y + parallax ≤ --parallax-max). `translate` and `transform` compose. */
+  @keyframes hero-float { 0%, 100% { transform: translateY(calc(var(--float-y) * -1)); } 50% { transform: translateY(var(--float-y)); } }
+  @media (min-width: 960px) and (hover: hover) {
+    :global(.js-motion) .hero__bg { animation: hero-float var(--float-dur) ease-in-out infinite; translate: 0 var(--parallax, 0px); will-change: transform; }
   }
 
-  .insight { text-align: center; }
-  .insight__text { margin: var(--sp-4) auto 0; max-width: 28ch; font-size: var(--fs-2xl); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+  .insight__text { margin-left: auto; margin-right: auto; max-width: 28ch; line-height: 1.3; }
   :lang(km) .insight__text { line-height: var(--lh-km-tight); max-width: 32ch; }
+  /* one grouped card; 1px gaps over a --line background draw the hairlines at every breakpoint */
+  .stats { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+  .stat { background: var(--white); padding: var(--sp-6) var(--sp-5); display: grid; gap: var(--sp-2); align-content: start; min-width: 0; }
+  .stat__value { font-size: var(--fs-3xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; color: var(--azure); font-variant-numeric: tabular-nums; }
+  .stat__label { font-size: var(--fs-md); font-weight: 600; }
+  :lang(km) .stat__value { line-height: var(--lh-km-tight); letter-spacing: 0; }
+  :lang(km) .stat__label, :lang(km) .stat__context, :lang(km) .stat__source { line-height: var(--lh-km); }
+  .stat__context { margin-top: var(--sp-1); }
+  .stat__source { overflow-wrap: anywhere; }
+  .stat__source a { color: var(--muted); }
+  .stat__source a:hover { color: var(--azure); }
+  .insight__note { display: flex; gap: var(--sp-2); align-items: flex-start; justify-content: center; margin-top: var(--sp-5); }
+  .insight__note :global(.ic) { margin-top: var(--sp-1); }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .stats { grid-template-columns: repeat(4, 1fr); } }
 
   .pillar { padding: var(--sp-6) var(--sp-5); display: grid; gap: var(--sp-3); align-content: start; }
   .pillar__name { font-size: var(--fs-xl); margin-top: var(--sp-2); }
   .pillar { position: relative; overflow: hidden; }
-  .pillar::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--azure); }
-  .pillar--energy::before { background: var(--saffron); }
+  .pillar::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: var(--pillar-bar); background: var(--azure); }
+  .pillar--energy::before { background: var(--grad-pin); }
+  .pillar--energy .row__icon { --pulse-color: var(--orange-pill); }
+  .pillars { display: grid; gap: var(--sp-6); justify-items: center; }
+  .pillars > .grid-3 { width: 100%; }
+  @media (min-width: 1100px) {
+    .pillars--mock { grid-template-columns: 1fr auto; align-items: center; }
+    .pillars--mock > .grid-3 { grid-template-columns: 1fr; }
+  }
   .pillar__text { color: var(--muted); }
   .pillars__note { display: flex; gap: var(--sp-2); align-items: center; margin-top: var(--sp-5); }
 
-  .impact { display: grid; gap: var(--sp-6); }
-  .impact__head { margin-bottom: 0; }
-  .impact__note { margin-top: var(--sp-4); }
-  .impact .textlink { margin-top: var(--sp-3); }
-  @media (min-width: 960px) { .impact { grid-template-columns: 0.9fr 1.1fr; gap: var(--sp-8); align-items: start; } }
+  .impact { margin-bottom: 0; }
+  .impact__cta { margin-top: var(--sp-6); white-space: normal; text-align: center; }
 </style>

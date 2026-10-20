@@ -4,59 +4,55 @@ import Icon from '../../components/Icon.astro';
 import TodoTag from '../../components/TodoTag.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { getDict, p, L, staticLangPaths, type Lang } from '../../i18n';
-import { team } from '../../data/team';
-import { proofPoints } from '../../data/impact';
-import { ecosystem } from '../../data/ecosystem';
+import { team, isPlaceholder } from '../../data/team';
+import { impactStats, eventPhotos, PHOTO_SLOTS } from '../../data/impact';
+import { milestones, isReached } from '../../data/milestones';
 
 export const getStaticPaths = staticLangPaths;
 const lang = Astro.params.lang as Lang;
 const t = getDict(lang);
 const a = t.about;
 const valueIcon: Record<string, string> = { trust: 'eye', safety: 'shield', interop: 'link', inclusive: 'users', sustain: 'leaf', evidence: 'flask' };
-const tierStyle: Record<string, { badge: string; icon: string; iconCls: string }> = {
-  learning: { badge: 'badge--ok', icon: 'chat', iconCls: 'row__icon--ok' },
-  building: { badge: 'badge--azure', icon: 'wrench', iconCls: '' },
-  aim: { badge: 'badge--neutral', icon: 'star', iconCls: 'row__icon--neutral' },
-};
-const ecoTypes = ['partner', 'program', 'engagement'] as const;
-const ecoIcon = { partner: 'handshake', program: 'star', engagement: 'chat' };
 const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''));
+// milestone state is decided at build time (see src/data/milestones.ts)
+const road = milestones.map((m) => ({ ...m, reached: isReached(m) }));
+// the spectrum spans only the solid part of the road (segments between reached milestones)
+const solidSegs = Math.max(road.filter((m) => m.reached).length - 1, 1);
+const webp = (src: string) => src.replace(/\.jpe?g$/i, '.webp');
 ---
-<Base lang={lang} title={t.meta.about} page="about">
-  <section class="pagehero">
+<Base lang={lang} title={t.meta.about} description={a.hero.lede} page="about">
+  <section class="pagehero on-dark">
     <div class="wrap">
       <p class="eyebrow">{a.hero.eyebrow}</p>
       <h1 class="pagehero__title">{a.hero.title}</h1>
       <p class="pagehero__lede">{a.hero.lede}</p>
-      <nav class="subnav" aria-label={a.hero.eyebrow}>
+      <nav class="subnav" aria-label={a.hero.title}>
         {Object.entries(a.subnav).map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
       </nav>
     </div>
   </section>
 
-  <!-- 5.1 Mission & Vision -->
-  <section class="section" id="mission">
+  <!-- Our Mission & Vision -->
+  <section class="section bg-glow" id="mission">
     <div class="wrap">
-      <div class="section__head"><p class="eyebrow">{a.mission.eyebrow}</p><h2 class="section__title">{a.mission.title}</h2></div>
+      <div class="section__head"><h2 class="section__title">{a.mission.title}</h2><p class="section__lede">{a.mission.lede}</p></div>
       <div class="grid-2">
         <article class="card mv">
           <span class="badge badge--azure">{a.mission.missionLabel}</span>
           <p class="mv__text">{a.mission.mission}</p>
-          <p class="cap">{a.mission.missionNote}</p>
         </article>
         <article class="card mv mv--vision">
           <span class="badge badge--azure">{a.mission.visionLabel}</span>
           <p class="mv__text">{a.mission.vision}</p>
-          <p class="cap">{a.mission.visionNote}</p>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- 5.2 Values -->
-  <section class="section section--pearl" id="values">
+  <!-- Our principles & values -->
+  <section class="section bg-sky" id="values">
     <div class="wrap">
-      <div class="section__head"><p class="eyebrow">{a.values.eyebrow}</p><h2 class="section__title">{a.values.title}</h2></div>
+      <div class="section__head"><h2 class="section__title">{a.values.title}</h2><p class="section__lede">{a.values.lede}</p></div>
       <ul class="group values">
         {a.values.items.map((v) => (
           <li class="row">
@@ -68,103 +64,132 @@ const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w)
     </div>
   </section>
 
-  <!-- 5.3 Team -->
-  <section class="section" id="team">
+  <!-- Meet our team, EnergyFlow (src/data/team.ts) -->
+  <section class="section bg-dawn" id="team">
     <div class="wrap">
-      <div class="section__head"><p class="eyebrow">{a.team.eyebrow}</p><h2 class="section__title">{a.team.title}</h2><p class="section__lede">{a.team.lede}</p></div>
+      <div class="section__head"><h2 class="section__title">{a.team.title}</h2><p class="section__lede">{a.team.lede}</p></div>
       <ul class="team">
-        {team.map((m) => (
-          <li class="card member">
-            {m.photo ? <img class="member__photo" src={m.photo} alt={L(lang, m.name)} width="72" height="72" loading="lazy" /> : <span class="member__photo member__photo--empty" aria-hidden="true">{initials(L(lang, m.name)) || <Icon name="user" size={28} />}</span>}
-            <div class="member__body">
-              {!m.confirmed && <TodoTag lang={lang} />}
-              <h3 class="member__name">{L(lang, m.name)}</h3>
-              <p class="member__role">{L(lang, m.role)}</p>
-              <p class="member__bio">{m.confirmed ? L(lang, m.bio) : a.team.pending}</p>
-              {m.confirmed && (m.linkedin || m.email) && (
-                <p class="member__links">
-                  {m.linkedin && <a class="textlink" href={m.linkedin} rel="noopener">{a.team.linkedin}<Icon name="arrow" size={16} /></a>}
-                  {m.email && <a class="textlink" href={`mailto:${m.email}`}>{a.team.email}</a>}
+        {team.map((m) => {
+          const study = L(lang, m.study);
+          const bio = L(lang, m.bio);
+          return (
+            <li class="card member">
+              {m.photo ? <img class="member__photo" src={m.photo} alt={L(lang, m.name)} width="72" height="72" loading="lazy" /> : <span class="member__photo member__photo--empty" aria-hidden="true">{initials(L(lang, m.name)) || <Icon name="user" size={28} />}</span>}
+              <div class="member__body">
+                {!m.confirmed && <TodoTag lang={lang} />}
+                <h3 class="member__name">{L(lang, m.name)}</h3>
+                <p class="member__role">{L(lang, m.role)}</p>
+                <p class="member__study"><span class="sr-only">{a.team.study}: </span>{isPlaceholder(study) ? <TodoTag lang={lang} /> : study.split(' · ').map((part, k, all) => <><span class="member__seg">{part}</span>{k < all.length - 1 && ' · '}</>)}</p>
+                {!m.confirmed ? <p class="member__bio">{a.team.pending}</p> : !isPlaceholder(bio) && <p class="member__bio">{bio}</p>}
+                {m.confirmed && (m.linkedin || m.email) && (
+                  <p class="member__links">
+                    {m.linkedin && <a class="textlink" href={m.linkedin} rel="noopener">{a.team.linkedin}<Icon name="arrow" size={16} /></a>}
+                    {m.email && <a class="textlink" href={`mailto:${m.email}`}>{a.team.email}</a>}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Our Impact: three figures + EnergyFlow event photos (src/data/impact.ts, public/img/impact/) -->
+  <section class="section bg-glow" id="impact">
+    <div class="wrap">
+      <div class="section__head"><h2 class="section__title">{a.impact.title}</h2></div>
+      <ul class="stats" aria-label={a.impact.statsLabel}>
+        {impactStats.map((s) => (
+          <li class="stat">
+            <p class="stat__value">
+              <span class="sr-only">{`${s.value}${s.suffix}`}</span>
+              {/* visual copy only: motion.ts counts it up; it already holds the final value without JS */}
+              <span aria-hidden="true" data-count={s.value} data-suffix={s.suffix}>{`${s.value}${s.suffix}`}</span>
+            </p>
+            <p class="stat__label">{L(lang, s.label)}</p>
+          </li>
+        ))}
+      </ul>
+      {eventPhotos.length > 0 ? (
+        <ul class="gallery" aria-label={a.impact.galleryLabel}>
+          {eventPhotos.map((ph, k) => (
+            <li class="photo">
+              {/* plain link to the image without JS; opens in the shared lightbox with JS */}
+              <a class="photo__link" href={ph.src} data-lb-group="energyflow" data-lb-index={k}
+                data-lb-webp={ph.webp ?? ''} data-lb-alt={L(lang, ph.alt)} data-lb-w={ph.width} data-lb-h={ph.height}>
+                <picture>
+                  {ph.webp && <source srcset={ph.webp} type="image/webp" />}
+                  <img src={ph.src} alt={L(lang, ph.alt)} width={ph.width} height={ph.height} loading="lazy" decoding="async" />
+                </picture>
+                <span class="sr-only"> ({a.journey.photoOpen})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="gallery-wrap">
+          <ul class="gallery" aria-hidden="true">
+            {Array.from({ length: PHOTO_SLOTS }, () => (
+              <li class="photo photo--empty"><span class="photo__empty"><Icon name="image" size={28} /><span class="cap">{a.impact.photoPending}</span></span></li>
+            ))}
+          </ul>
+          <p class="sr-only">{a.impact.photoPending}</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Our learning journey (src/data/milestones.ts): spectrum road, horizontal from 900px, vertical below -->
+  <section class="section bg-dawn" id="journey">
+    <div class="wrap">
+      <div class="section__head"><h2 class="section__title">{a.journey.title}</h2></div>
+      <ol class="journey" style={`--segs: ${solidSegs}`}>
+        {road.map((ms, i) => (
+          <li class={`milestone ${ms.reached ? 'milestone--reached' : 'milestone--next'}`} style={`--seg: ${i}`}>
+            <span class="milestone__pin" aria-hidden="true"><Icon name={ms.reached ? 'pin' : 'flag'} size={20} /></span>
+            <div class="milestone__body">
+              {ms.reached ? <span class="sr-only">{a.journey.reached}: </span> : <span class="badge badge--neutral"><Icon name="arrow" size={14} />{a.journey.next}</span>}
+              {L(lang, ms.date) && <p class="milestone__date">{L(lang, ms.date)}</p>}
+              <h3 class="milestone__title">{L(lang, ms.title)}</h3>
+              <p class="milestone__text">{L(lang, ms.text)}</p>
+              {/* photos: plain links to the image (works without JS); the script below opens them in the lightbox */}
+              {ms.photos.length > 0 && (
+                <a class="milestone__thumb" href={ms.photos[0].src} data-lb-group={ms.id} data-lb-index="0"
+                  data-lb-webp={webp(ms.photos[0].src)} data-lb-alt={L(lang, ms.photos[0].alt)} data-lb-w={ms.photos[0].width} data-lb-h={ms.photos[0].height}>
+                  <picture>
+                    <source srcset={webp(ms.photos[0].src)} type="image/webp" />
+                    <img src={ms.photos[0].src} alt={L(lang, ms.photos[0].alt)} width={ms.photos[0].width} height={ms.photos[0].height} loading="lazy" decoding="async" />
+                  </picture>
+                  <span class="sr-only"> ({a.journey.photoOpen})</span>
+                  {ms.photos.length > 1 && <span class="milestone__count" aria-hidden="true">+{ms.photos.length - 1}</span>}
+                </a>
+              )}
+              {ms.photos.length > 1 && (
+                <p class="milestone__more">{a.journey.morePhotos}:
+                  {ms.photos.slice(1).map((ph, k) => (
+                    <a href={ph.src} data-lb-group={ms.id} data-lb-index={k + 1} data-lb-webp={webp(ph.src)} data-lb-alt={L(lang, ph.alt)} data-lb-w={ph.width} data-lb-h={ph.height}>
+                      {k + 2}<span class="sr-only">: {L(lang, ph.alt)}</span>
+                    </a>
+                  ))}
                 </p>
               )}
             </div>
           </li>
         ))}
-      </ul>
-    </div>
-  </section>
-
-  <!-- 5.4 Impact -->
-  <section class="section section--pearl" id="impact">
-    <div class="wrap">
-      <div class="section__head"><p class="eyebrow">{a.impact.eyebrow}</p><h2 class="section__title">{a.impact.title}</h2><p class="section__lede">{a.impact.lede}</p></div>
-      <ol class="grid-3 tiers">
-        {a.impact.tiers.map((tier) => (
-          <li class="card tier">
-            <div class="tier__top">
-              <span class={`row__icon ${tierStyle[tier.key].iconCls}`}><Icon name={tierStyle[tier.key].icon} /></span>
-              <span class={`badge ${tierStyle[tier.key].badge}`}>{tier.label}</span>
-            </div>
-            <h3 class="tier__title">{tier.title}</h3>
-            <ul class="ticks">{tier.items.map((i) => <li><Icon name="check" size={18} />{i}</li>)}</ul>
-          </li>
-        ))}
       </ol>
-      <div class="proof">
-        <div class="proof__head"><h3 class="proof__title">{a.impact.proofTitle}</h3><p class="cap">{a.impact.proofNote}</p></div>
-        <ul class="proof__grid">
-          {proofPoints.map((pp) => (
-            <li class="proof__item">
-              {!pp.confirmed && <TodoTag lang={lang} />}
-              <p class="proof__value">{pp.value}</p>
-              <p class="proof__label">{L(lang, pp.label)}</p>
-              <p class="cap">{L(lang, pp.definition)} · {pp.asOf}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
+
   </section>
 
-  <!-- §7 Ecosystem & recognition -->
-  <section class="section" id="ecosystem">
-    <div class="wrap">
-      <div class="section__head"><p class="eyebrow">{a.ecosystem.eyebrow}</p><h2 class="section__title">{a.ecosystem.title}</h2><p class="section__lede">{a.ecosystem.lede}</p></div>
-      <div class="grid-3 eco">
-        {ecoTypes.map((type) => {
-          const items = ecosystem.filter((e) => e.type === type);
-          return (
-            <section class="eco__col">
-              <div class="eco__head">
-                <span class="row__icon"><Icon name={ecoIcon[type]} /></span>
-                <div><h3 class="eco__name">{a.ecosystem.types[type].name}</h3><p class="cap">{a.ecosystem.types[type].text}</p></div>
-              </div>
-              {items.length === 0 ? <p class="eco__none cap">{a.ecosystem.none}</p> : (
-                <ul class="group">
-                  {items.map((e) => (
-                    <li class="eco__item">
-                      {e.logo && e.logoApproved && <img src={e.logo} alt="" height="28" loading="lazy" />}
-                      <p class="eco__itemname">{L(lang, e.name)} {!e.confirmed && <TodoTag lang={lang} />}</p>
-                      <p class="cap">{L(lang, e.detail)} · {e.date}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-
-  <!-- 5.5 Become our partner -->
-  <section class="section section--pearl" id="partner">
+  <!-- Become our partner -->
+  <section class="section bg-sky" id="partner">
     <div class="wrap partner">
       <div>
         <p class="eyebrow">{a.partner.eyebrow}</p>
         <h2 class="section__title">{a.partner.title}</h2>
         <p class="section__lede">{a.partner.text}</p>
-        <a class="btn btn--lg btn--primary partner__cta" href={`${p(lang, '/join/')}?role=partner`}>{a.partner.cta}<Icon name="arrow" size={20} /></a>
+        <a class="btn btn--lg btn--pill partner__cta" href={`${p(lang, '/join/')}?role=partner`}>{a.partner.cta}<Icon name="arrow" size={20} /></a>
       </div>
       <div class="card partner__ways">
         <h3 class="partner__h">{a.partner.pathwaysTitle}</h3>
@@ -172,6 +197,18 @@ const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w)
       </div>
     </div>
   </section>
+
+  <!-- Photo lightbox shared by the Impact grid and the milestone thumbnails: one modal <dialog>
+       (native focus trap + Esc), filled by the script below -->
+  <dialog class="lightbox" aria-label={a.journey.gallery} data-lightbox>
+    <figure class="lightbox__fig">
+      <picture><source type="image/webp" data-lb-source /><img alt="" data-lb-img /></picture>
+      <figcaption class="lightbox__cap" data-lb-cap data-of={a.journey.of}></figcaption>
+    </figure>
+    <button class="lightbox__btn lightbox__close" type="button" data-lb-close aria-label={a.journey.close} autofocus><Icon name="close" size={22} /></button>
+    <button class="lightbox__btn lightbox__prev" type="button" data-lb-prev aria-label={a.journey.prevPhoto}><Icon name="arrow" size={22} /></button>
+    <button class="lightbox__btn lightbox__next" type="button" data-lb-next aria-label={a.journey.nextPhoto}><Icon name="arrow" size={22} /></button>
+  </dialog>
 
   <CtaBand lang={lang} title={t.home.closing.title} text={t.home.closing.text} />
 </Base>
@@ -193,35 +230,100 @@ const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w)
   @media (min-width: 700px) { .team { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1040px) { .team { grid-template-columns: repeat(3, 1fr); } }
   .member { padding: var(--sp-5); display: flex; gap: var(--sp-4); align-items: flex-start; }
-  .member__photo { width: 72px; height: 72px; border-radius: var(--r-lg); object-fit: cover; flex: none; }
+  /* three columns: photo above the text so the "Major · School · Year" line gets the full card width */
+  @media (min-width: 1040px) { .member { flex-direction: column; } }
+  .member__photo { width: var(--avatar); height: var(--avatar); border-radius: var(--r-lg); object-fit: cover; flex: none; }
   .member__photo--empty { display: grid; place-items: center; background: var(--azure-soft); color: var(--azure); font-weight: 700; font-size: var(--fs-lg); }
   .member__body { display: grid; gap: var(--sp-1); justify-items: start; min-width: 0; }
   .member__name { font-size: var(--fs-lg); margin-top: var(--sp-1); }
   .member__role { color: var(--azure); font-weight: 600; font-size: var(--fs-md); }
+  .member__study { color: var(--muted); font-size: var(--fs-sm); margin-top: var(--sp-1); }
+  .member__seg { white-space: nowrap; }
+  :lang(km) .member__study { line-height: var(--lh-km); }
   .member__bio { color: var(--muted); font-size: var(--fs-md); margin-top: var(--sp-1); }
   .member__links { display: flex; gap: var(--sp-4); }
 
-  .tier { padding: var(--sp-6) var(--sp-5); display: grid; gap: var(--sp-4); align-content: start; }
-  .tier__top { display: flex; justify-content: space-between; align-items: center; }
-  .tier__title { font-size: var(--fs-lg); }
-  .ticks { display: grid; gap: var(--sp-3); }
-  .ticks li { display: flex; gap: var(--sp-2); align-items: flex-start; color: var(--navy); font-size: var(--fs-md); }
-  .ticks :global(.ic) { color: var(--azure); margin-top: 3px; }
+  /* Impact: three figures, then the event photos (same 4:3 slot filled or empty) */
+  .stats { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+  .stat { background: var(--white); padding: var(--sp-5); display: grid; gap: var(--sp-1); align-content: start; }
+  .stat__value { font-size: var(--fs-3xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; color: var(--azure); font-variant-numeric: tabular-nums; }
+  .stat__label { font-size: var(--fs-md); font-weight: 600; }
+  :lang(km) .stat__value { line-height: var(--lh-km-tight); letter-spacing: 0; }
+  :lang(km) .stat__label { line-height: var(--lh-km); }
 
-  .proof { margin-top: var(--sp-7); }
-  .proof__head { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; margin-bottom: var(--sp-4); }
-  .proof__title { font-size: var(--fs-lg); }
-  .proof__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
-  .proof__item { padding: var(--sp-5); display: grid; gap: var(--sp-1); justify-items: start; align-content: start; box-shadow: -1px 0 0 var(--line), 0 -1px 0 var(--line); }
-  .proof__value { font-size: var(--fs-xl); font-weight: 700; color: var(--azure); }
-  .proof__label { font-weight: 600; }
+  /* 1 column on phones, 2 on tablets, 3 on desktop */
+  .gallery { margin-top: var(--sp-7); display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+  @media (min-width: 600px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+  .photo { aspect-ratio: var(--photo-ratio); border-radius: var(--r-lg); overflow: hidden; background: var(--white); border: 1px solid var(--line); }
+  .photo__link, .photo picture { display: block; width: 100%; height: 100%; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur-fast) var(--ease); }
+  @media (hover: hover) { .photo__link:hover img { transform: scale(1.03); } }
+  .photo--empty { border-style: dashed; border-color: var(--line-strong); }
+  .photo__empty { height: 100%; display: grid; place-content: center; justify-items: center; gap: var(--sp-2); padding: var(--sp-3); text-align: center; background: var(--azure-soft); color: var(--azure); }
+  :lang(km) .photo__empty .cap { line-height: var(--lh-km); }
 
-  .eco__col { display: grid; gap: var(--sp-4); align-content: start; }
-  .eco__head { display: flex; gap: var(--sp-3); align-items: flex-start; }
-  .eco__name { font-size: var(--fs-lg); }
-  .eco__item { padding: var(--sp-4) var(--sp-5); display: grid; gap: var(--sp-1); }
-  .eco__itemname { font-weight: 600; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
-  .eco__none { padding: var(--sp-4) var(--sp-5); border: 1px dashed var(--line-strong); border-radius: var(--r-lg); }
+  /* Learning journey road. Each milestone draws the segment to the next one; the segments
+     share ONE spectrum gradient (background-size × segment count, offset per segment) so
+     the road reads as a single line. A segment leading into an upcoming milestone is a
+     dashed muted line, and upcoming markers are hollow + muted with a "Next" tag.
+     Vertical on mobile (road on the left), horizontal from 900px. */
+  .journey { display: grid; gap: var(--sp-6); }
+  .milestone { position: relative; display: grid; grid-template-columns: var(--milestone-dot) 1fr; gap: var(--sp-4); align-items: start; }
+  .milestone::before {
+    content: ''; position: absolute; border-radius: var(--r-pill);
+    left: calc((var(--milestone-dot) - var(--road-h)) / 2); width: var(--road-h);
+    top: var(--milestone-dot); bottom: calc(-1 * var(--sp-6));
+    background: var(--grad-spectrum-v) 0 calc(var(--seg) / max(var(--segs) - 1, 1) * 100%) / 100% calc(var(--segs) * 100%) no-repeat;
+  }
+  .milestone:last-child::before { display: none; }
+  .milestone:has(+ .milestone--next)::before { background: repeating-linear-gradient(180deg, var(--line-strong) 0 var(--road-dash), transparent var(--road-dash) calc(2 * var(--road-dash))); }
+  .milestone__pin { position: relative; z-index: 1; width: var(--milestone-dot); height: var(--milestone-dot); border-radius: 50% 50% 50% 0; rotate: -45deg; display: grid; place-items: center; background: var(--grad-pin); color: var(--navy-deep); box-shadow: 0 0 0 var(--sp-1) var(--white); }
+  .milestone__pin :global(.ic) { rotate: 45deg; }
+  .milestone__body { display: grid; gap: var(--sp-1); justify-items: start; padding-top: var(--sp-2); min-width: 0; }
+  .milestone__date { font-size: var(--fs-sm); font-weight: 600; color: var(--azure); }
+  .milestone__title { font-size: var(--fs-lg); }
+  .milestone__text { color: var(--muted); font-size: var(--fs-md); }
+  :lang(km) :is(.milestone__date, .milestone__text) { line-height: var(--lh-km); }
+  .milestone--next .milestone__pin { background: var(--white); color: var(--muted); border: 1px dashed var(--line-strong); box-shadow: none; }
+  .milestone--next .milestone__title { color: var(--muted); }
+  @media (min-width: 900px) {
+    .journey { grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .milestone { grid-template-columns: 1fr; }
+    .milestone::before {
+      top: calc((var(--milestone-dot) - var(--road-h)) / 2); bottom: auto; height: var(--road-h);
+      left: var(--milestone-dot); right: calc(-1 * var(--sp-5)); width: auto;
+      background: var(--grad-spectrum) calc(var(--seg) / max(var(--segs) - 1, 1) * 100%) 0 / calc(var(--segs) * 100%) 100% no-repeat;
+    }
+    .milestone:has(+ .milestone--next)::before { background: repeating-linear-gradient(90deg, var(--line-strong) 0 var(--road-dash), transparent var(--road-dash) calc(2 * var(--road-dash))); }
+    .milestone__body { padding-top: 0; }
+  }
+
+  /* milestone photo: rounded 4:3 thumbnail under the text */
+  .milestone__thumb { position: relative; justify-self: stretch; display: block; margin-top: var(--sp-3); aspect-ratio: var(--photo-ratio); border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line); background: var(--azure-soft); }
+  .milestone__thumb picture, .milestone__thumb img { display: block; width: 100%; height: 100%; }
+  .milestone__thumb img { object-fit: cover; transition: transform var(--dur-fast) var(--ease); }
+  @media (hover: hover) { .milestone__thumb:hover img { transform: scale(1.03); } }
+  .milestone__count { position: absolute; right: var(--sp-2); bottom: var(--sp-2); padding: var(--sp-1) var(--sp-2); border-radius: var(--r-pill); background: var(--scrim); color: var(--white); font-size: var(--fs-xs); font-weight: 600; }
+  .milestone__more { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; font-size: var(--fs-sm); color: var(--muted); }
+  .milestone__more a { display: inline-grid; place-items: center; min-width: var(--tap); min-height: var(--tap); color: var(--azure); font-weight: 600; }
+
+  /* lightbox: floating UI, so it gets the lift shadow; controls are white on the dark backdrop */
+  .lightbox { padding: 0; border: 0; background: transparent; max-width: min(92vw, var(--lightbox-max)); max-height: 92vh; overflow: visible; color: var(--white); }
+  .lightbox::backdrop { background: var(--lightbox-backdrop); }
+  .lightbox__fig { margin: 0; display: grid; gap: var(--sp-2); justify-items: center; }
+  .lightbox__fig img { display: block; width: auto; height: auto; max-width: min(92vw, var(--lightbox-max)); max-height: calc(92vh - var(--sp-7)); border-radius: var(--r-lg); box-shadow: var(--lift); }
+  .lightbox__cap { font-size: var(--fs-sm); color: var(--on-dark-muted); text-align: center; }
+  .lightbox__cap:empty { display: none; }
+  .lightbox__btn { position: absolute; width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; display: grid; place-items: center; background: var(--white); color: var(--navy-deep); box-shadow: var(--lift); cursor: pointer; }
+  .lightbox__btn[hidden] { display: none; }
+  .lightbox :focus-visible { outline-color: var(--focus-ring-on-dark); }
+  .lightbox__close { top: var(--sp-2); right: var(--sp-2); }
+  .lightbox__prev, .lightbox__next { top: 50%; translate: 0 -50%; }
+  .lightbox__prev { left: var(--sp-2); }
+  .lightbox__prev :global(.ic) { scale: -1 1; }
+  .lightbox__next { right: var(--sp-2); }
 
   .partner { display: grid; gap: var(--sp-6); align-items: center; }
   .partner__cta { margin-top: var(--sp-6); }
@@ -231,3 +333,62 @@ const initials = (n: string) => (n.startsWith('[') ? '' : n.split(/\s+/).map((w)
   .chips li { padding: var(--sp-2) var(--sp-4); border-radius: var(--r-pill); background: var(--azure-soft); color: var(--azure); font-weight: 500; font-size: var(--fs-md); }
   @media (min-width: 960px) { .partner { grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-8); } }
 </style>
+
+<script>
+  /* Milestone photo lightbox. Without JS the thumbnails are plain links to the image.
+     <dialog>.showModal() makes the page behind inert (focus stays in the dialog) and closes on Esc;
+     focus then goes back to the thumbnail that opened it. */
+  const dlg = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+  if (dlg && typeof dlg.showModal === 'function') {
+    const img = dlg.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const source = dlg.querySelector<HTMLSourceElement>('[data-lb-source]')!;
+    const cap = dlg.querySelector<HTMLElement>('[data-lb-cap]')!;
+    const prev = dlg.querySelector<HTMLButtonElement>('[data-lb-prev]')!;
+    const next = dlg.querySelector<HTMLButtonElement>('[data-lb-next]')!;
+    const ofWord = cap.dataset.of ?? '';
+    let items: HTMLAnchorElement[] = [];
+    let i = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (n: number) => {
+      i = (n + items.length) % items.length;
+      const a = items[i];
+      source.srcset = a.dataset.lbWebp ?? '';
+      img.src = a.href;
+      img.alt = a.dataset.lbAlt ?? '';
+      img.width = Number(a.dataset.lbW) || 0;
+      img.height = Number(a.dataset.lbH) || 0;
+      cap.textContent = items.length > 1 ? `${i + 1} ${ofWord} ${items.length}` : '';
+      prev.hidden = next.hidden = items.length < 2;
+    };
+
+    document.querySelectorAll<HTMLAnchorElement>('a[data-lb-group]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        items = [...document.querySelectorAll<HTMLAnchorElement>(`a[data-lb-group="${a.dataset.lbGroup}"]`)]
+          .sort((x, y) => Number(x.dataset.lbIndex) - Number(y.dataset.lbIndex));
+        opener = a;
+        show(items.indexOf(a));
+        dlg.showModal();
+      });
+    });
+    prev.addEventListener('click', () => show(i - 1));
+    next.addEventListener('click', () => show(i + 1));
+    dlg.querySelector('[data-lb-close]')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); }); // click on the backdrop
+    dlg.addEventListener('keydown', (e) => {
+      // keep Tab inside the dialog (native modals let it escape to the browser UI)
+      if (e.key === 'Tab') {
+        const btns = [...dlg.querySelectorAll<HTMLButtonElement>('button:not([hidden])')];
+        const at = btns.indexOf(document.activeElement as HTMLButtonElement);
+        e.preventDefault();
+        btns[(at + (e.shiftKey ? -1 : 1) + btns.length) % btns.length]?.focus();
+        return;
+      }
+      if (items.length < 2) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+    });
+    dlg.addEventListener('close', () => opener?.focus());
+  }
+</script>
