@@ -14,10 +14,10 @@ const roleIcon = { driver: 'car', cpo: 'plug', partner: 'handshake' };
 const req = `(${f.required})`;
 const opt = `(${f.optional})`;
 ---
-<Base lang={lang} title={t.meta.join} page="join">
+<Base lang={lang} title={t.meta.join} description={j.hero.lede} page="join">
   <Fragment slot="head"><script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script></Fragment>
 
-  <section class="pagehero">
+  <section class="pagehero on-dark">
     <div class="wrap">
       <p class="eyebrow">{j.hero.eyebrow}</p>
       <h1 class="pagehero__title">{j.hero.title}</h1>
@@ -25,14 +25,14 @@ const opt = `(${f.optional})`;
     </div>
   </section>
 
-  <section class="section join">
+  <section class="section bg-glow join">
     <div class="wrap join__grid">
       <form class="form" method="post" action="/api/interest" novalidate data-form
         data-msg-required={f.errors.required} data-msg-role={f.errors.role} data-msg-consent={f.errors.consent}
         data-msg-captcha={f.errors.captcha} data-msg-generic={f.errors.generic} data-msg-sending={f.sending}
         data-thanks={p(lang, '/join/thanks/')}>
         <input type="hidden" name="lang" value={lang} />
-        <div class="form__alert" role="alert" data-alert hidden><Icon name="alert" size={20} /><span data-alert-text>{f.errors.title}</span></div>
+        <div class="form__alert" id="form-error" role="alert" data-alert hidden><Icon name="alert" size={20} /><span data-alert-text>{f.errors.title}</span></div>
 
         <!-- 1. Role -->
         <fieldset class="fs" data-field="role">
@@ -50,7 +50,7 @@ const opt = `(${f.optional})`;
               </label>
             ))}
           </div>
-          <p class="err" data-err="role"></p>
+          <p class="err" id="err-role" data-err="role"></p>
         </fieldset>
 
         <!-- 2. About you -->
@@ -59,7 +59,7 @@ const opt = `(${f.optional})`;
           <div class="field" data-field="name">
             <label for="name">{f.name} <span class="req">{req}</span></label>
             <input id="name" name="name" type="text" autocomplete="name" maxlength="120" required />
-            <p class="err" data-err="name"></p>
+            <p class="err" id="err-name" data-err="name"></p>
           </div>
           <div class="field-row">
             <div class="field" data-field="contact_method">
@@ -72,7 +72,7 @@ const opt = `(${f.optional})`;
               <label for="contact_value">{f.contactValue} <span class="req">{req}</span></label>
               <input id="contact_value" name="contact_value" type="text" maxlength="160" required aria-describedby="cv-hint" />
               <p class="hint" id="cv-hint">{f.contactValueHint}</p>
-              <p class="err" data-err="contact_value"></p>
+              <p class="err" id="err-contact_value" data-err="contact_value"></p>
             </div>
           </div>
         </fieldset>
@@ -91,7 +91,7 @@ const opt = `(${f.optional})`;
                 <option value="">—</option>
                 {Object.entries(f.profiles).map(([v, l]) => <option value={v}>{l}</option>)}
               </select>
-              <p class="err" data-err="driving_profile"></p>
+              <p class="err" id="err-driving_profile" data-err="driving_profile"></p>
             </div>
           </div>
           <div class="field" data-field="area">
@@ -101,7 +101,7 @@ const opt = `(${f.optional})`;
               {Object.entries(f.areas).map(([v, l]) => <option value={v}>{l}</option>)}
             </select>
             <p class="hint" id="area-hint">{f.areaHint}</p>
-            <p class="err" data-err="area"></p>
+            <p class="err" id="err-area" data-err="area"></p>
           </div>
           <fieldset class="field">
             <legend>{f.challenges} <span class="opt">{opt}</span></legend>
@@ -124,12 +124,12 @@ const opt = `(${f.optional})`;
             <div class="field" data-field="cpo_org">
               <label for="cpo_org">{f.organization} <span class="req">{req}</span></label>
               <input id="cpo_org" name="cpo_org" type="text" autocomplete="organization" maxlength="160" data-req="cpo" />
-              <p class="err" data-err="cpo_org"></p>
+              <p class="err" id="err-cpo_org" data-err="cpo_org"></p>
             </div>
             <div class="field" data-field="cpo_role">
               <label for="cpo_role">{f.jobRole} <span class="req">{req}</span></label>
               <input id="cpo_role" name="cpo_role" type="text" autocomplete="organization-title" maxlength="120" data-req="cpo" />
-              <p class="err" data-err="cpo_role"></p>
+              <p class="err" id="err-cpo_role" data-err="cpo_role"></p>
             </div>
           </div>
           <div class="field">
@@ -140,7 +140,7 @@ const opt = `(${f.optional})`;
           <div class="field" data-field="cpo_challenge">
             <label for="cpo_challenge">{f.opChallenge} <span class="req">{req}</span></label>
             <textarea id="cpo_challenge" name="cpo_challenge" rows="3" maxlength="1000" data-req="cpo"></textarea>
-            <p class="err" data-err="cpo_challenge"></p>
+            <p class="err" id="err-cpo_challenge" data-err="cpo_challenge"></p>
           </div>
         </fieldset>
 
@@ -151,12 +151,12 @@ const opt = `(${f.optional})`;
             <div class="field" data-field="partner_org">
               <label for="partner_org">{f.organization} <span class="req">{req}</span></label>
               <input id="partner_org" name="partner_org" type="text" autocomplete="organization" maxlength="160" data-req="partner" />
-              <p class="err" data-err="partner_org"></p>
+              <p class="err" id="err-partner_org" data-err="partner_org"></p>
             </div>
             <div class="field" data-field="partner_expertise">
               <label for="partner_expertise">{f.expertise} <span class="req">{req}</span></label>
               <input id="partner_expertise" name="partner_expertise" type="text" maxlength="160" data-req="partner" />
-              <p class="err" data-err="partner_expertise"></p>
+              <p class="err" id="err-partner_expertise" data-err="partner_expertise"></p>
             </div>
           </div>
           <fieldset class="field">
@@ -177,11 +177,11 @@ const opt = `(${f.optional})`;
         <div class="fs fs--last">
           <div class="field" data-field="consent">
             <label class="check check--consent"><input type="checkbox" name="consent" value="yes" required /><span>{f.consent}<small>{f.consentHint}</small></span></label>
-            <p class="err" data-err="consent"></p>
+            <p class="err" id="err-consent" data-err="consent"></p>
           </div>
           <div class="field" data-field="captcha">
             <div class="cf-turnstile" data-sitekey={siteKey} data-language={lang === 'km' ? 'km' : 'en'} data-size="flexible"></div>
-            <p class="err" data-err="captcha"></p>
+            <p class="err" id="err-captcha" data-err="captcha"></p>
           </div>
           <button class="btn btn--lg btn--primary form__submit" type="submit" data-submit>{f.submit}<Icon name="arrow" size={20} /></button>
         </div>
@@ -202,7 +202,7 @@ const opt = `(${f.optional})`;
 <style>
   .join { padding-top: var(--sp-7); }
   .join__grid { display: grid; gap: var(--sp-6); }
-  @media (min-width: 1000px) { .join__grid { grid-template-columns: minmax(0, 1fr) 340px; gap: var(--sp-8); align-items: start; } .why { position: sticky; top: calc(var(--header-h) + var(--sp-5)); } }
+  @media (min-width: 1000px) { .join__grid { grid-template-columns: minmax(0, 1fr) var(--aside-w); gap: var(--sp-8); align-items: start; } .why { position: sticky; top: calc(var(--header-h) + var(--sp-5)); } }
   .why { order: -1; }
   @media (min-width: 1000px) { .why { order: 0; } }
   .why__card { padding: var(--sp-5); display: grid; gap: var(--sp-3); justify-items: start; background: var(--pearl); }
@@ -212,7 +212,8 @@ const opt = `(${f.optional})`;
   .form { display: grid; gap: var(--sp-5); }
   .form__alert { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-4); border-radius: var(--r-md); background: var(--danger-soft); color: var(--danger); font-weight: 600; }
   .form__alert[hidden] { display: none; }
-  .fs { border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-5); margin: 0; display: grid; gap: var(--sp-4); min-width: 0; }
+  .form__alert[hidden]:target { display: flex; }  /* no-JS: the API redirects invalid posts to #form-error */
+  .fs { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-5); margin: 0; display: grid; gap: var(--sp-4); min-width: 0; }
   @media (min-width: 700px) { .fs { padding: var(--sp-6); } }
   .fs__legend { float: left; width: 100%; font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--sp-1); padding: 0; }
   .fs__legend + * { clear: both; }
@@ -223,19 +224,25 @@ const opt = `(${f.optional})`;
   @media (min-width: 760px) { .roles { grid-template-columns: repeat(3, 1fr); } }
   .role { position: relative; cursor: pointer; }
   .role input { position: absolute; opacity: 0; inset: 0; }
-  .role__box { position: relative; height: 100%; display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-5) var(--sp-4); border-radius: var(--r-lg); border: 1px solid var(--line-strong); background: var(--white); transition: border-color 0.15s, box-shadow 0.15s; }
-  .role:hover .role__box { border-color: var(--azure); }
-  .role input:focus-visible + .role__box { outline: 3px solid var(--azure); outline-offset: 2px; }
+  .role__box { position: relative; height: 100%; display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-5) var(--sp-4); border-radius: var(--r-lg); border: 1px solid var(--line-strong); background: var(--white); transition: border-color var(--dur-fast), box-shadow var(--dur-fast); }
+  @media (hover: hover) { .role:hover .role__box { border-color: var(--azure); } }  /* no sticky hover after a tap */
+  .role input:focus-visible + .role__box { outline: var(--focus-w) solid var(--azure); outline-offset: var(--focus-offset); }  /* same ring as :focus-visible */
   .role input:checked + .role__box { border-color: var(--azure); box-shadow: inset 0 0 0 1px var(--azure); background: var(--azure-soft); }
+  /* the azure-soft icon tile would vanish on the azure-soft selected card: lift it to white */
+  .role input:checked + .role__box .row__icon:not(.row__icon--saffron) { background: var(--white); }
   .role__title { font-weight: 600; font-size: var(--fs-body); margin-top: var(--sp-2); }
   .role__text { color: var(--muted); font-size: var(--fs-sm); }
-  .role__check { position: absolute; top: var(--sp-3); right: var(--sp-3); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--white); background: var(--white); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .role__check { position: absolute; top: var(--sp-3); right: var(--sp-3); width: var(--check-size); height: var(--check-size); border-radius: 50%; display: grid; place-items: center; color: var(--white); background: var(--white); box-shadow: inset 0 0 0 1px var(--line-strong); }
   .role input:checked + .role__box .role__check { background: var(--azure); box-shadow: none; }
 
   .field { display: grid; gap: var(--sp-2); border: 0; margin: 0; padding: 0; min-width: 0; }
   .field-row { display: grid; gap: var(--sp-4); align-items: start; }
   @media (min-width: 700px) { .field-row { grid-template-columns: 1fr 1fr; } }
-  .field label, .field legend { font-weight: 600; font-size: var(--fs-md); padding: 0; }
+  /* field labels, not the checkbox rows (.check has its own padding and weight) */
+  .field label:not(.check), .field legend { font-weight: 600; font-size: var(--fs-md); padding: 0; }
+  /* a <legend> ignores the fieldset's grid gap: float it so it spaces like the other labels */
+  .field > legend { float: left; width: 100%; margin-bottom: var(--sp-2); }
+  .field > legend + * { clear: both; }
   .req, .opt { font-weight: 400; color: var(--muted); font-size: var(--fs-sm); }
   input[type='text'], select, textarea { width: 100%; min-height: var(--field-h); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--white); font-size: var(--fs-md); line-height: 1.5; }
   :lang(km) input[type='text'], :lang(km) select, :lang(km) textarea { line-height: var(--lh-km); }
@@ -248,9 +255,10 @@ const opt = `(${f.optional})`;
   .is-invalid input[type='text'], .is-invalid select, .is-invalid textarea { border-color: var(--danger); }
   .checks { display: grid; gap: var(--sp-2); }
   @media (min-width: 700px) { .checks { grid-template-columns: 1fr 1fr; } }
-  .check { display: flex; gap: var(--sp-3); align-items: flex-start; min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); border: 1px solid var(--line); background: var(--white); cursor: pointer; font-weight: 400 !important; }
-  .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--azure); flex: none; }
-  .check--consent { border-color: var(--line-strong); }
+  .check { display: flex; gap: var(--sp-3); align-items: center; min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); border: 1px solid var(--line); background: var(--white); cursor: pointer; font-size: var(--fs-md); font-weight: 400; }
+  .check input { width: var(--control-size); height: var(--control-size); margin: 0; accent-color: var(--azure); flex: none; }
+  .check--consent { border-color: var(--line-strong); align-items: flex-start; }  /* multi-line: box aligns with the first line */
+  .check--consent input { margin-top: calc(var(--sp-1) / 2); }
   .check--consent small { display: block; color: var(--muted); font-size: var(--fs-sm); margin-top: var(--sp-1); }
   .form__submit { justify-self: start; }
   .form__submit[disabled] { opacity: 0.7; cursor: progress; }
@@ -267,6 +275,7 @@ const opt = `(${f.optional})`;
     const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
     const submitHTML = submit.innerHTML;
     const titleMsg = alertText.textContent || '';
+    const scrollBehavior: ScrollBehavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
     const currentRole = () => (form.querySelector<HTMLInputElement>('input[name="role"]:checked')?.value ?? '');
     const showRole = (role: string) => panels.forEach((p) => { p.hidden = role !== '' && p.dataset.rolePanel !== role; if (role === '') p.hidden = true; });
@@ -282,8 +291,12 @@ const opt = `(${f.optional})`;
       const el = form!.querySelector<HTMLElement>(`[data-err="${name}"]`);
       if (el) el.textContent = msg;
       form!.querySelector(`[data-field="${name}"]`)?.classList.toggle('is-invalid', !!msg);
-      const input = form!.querySelector<HTMLElement>(`[name="${name}"]`);
-      if (input) { msg ? input.setAttribute('aria-invalid', 'true') : input.removeAttribute('aria-invalid'); }
+      // link the message to its field(s) so screen readers read it with the field
+      form!.querySelectorAll<HTMLElement>(`[name="${name}"]`).forEach((input) => {
+        const ids = (input.getAttribute('aria-describedby') || '').split(' ').filter((id) => id && id !== `err-${name}`);
+        if (msg) { input.setAttribute('aria-invalid', 'true'); ids.push(`err-${name}`); } else input.removeAttribute('aria-invalid');
+        ids.length ? input.setAttribute('aria-describedby', ids.join(' ')) : input.removeAttribute('aria-describedby');
+      });
     }
 
     function validate(): string[] {
@@ -310,7 +323,7 @@ const opt = `(${f.optional})`;
         alertText.textContent = titleMsg; alertBox.hidden = false;
         const first = form.querySelector<HTMLElement>(`[name="${bad[0]}"]`);
         first?.focus({ preventScroll: true });
-        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alertBox.scrollIntoView({ behavior: scrollBehavior, block: 'center' });
         return;
       }
       alertBox.hidden = true;
@@ -326,7 +339,7 @@ const opt = `(${f.optional})`;
         throw new Error(data.error || 'failed');
       } catch (err) {
         alertText.textContent = (err as Error).message === 'fields' ? titleMsg : d.msgGeneric!; alertBox.hidden = false;
-        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alertBox.scrollIntoView({ behavior: scrollBehavior, block: 'center' });
         (window as any).turnstile?.reset();
       } finally {
         submit.disabled = false; submit.innerHTML = submitHTML;

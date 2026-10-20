@@ -8,14 +8,14 @@ const lang = Astro.params.lang as Lang;
 const t = getDict(lang);
 const pr = t.privacy;
 ---
-<Base lang={lang} title={t.meta.privacy} page="other">
-  <section class="pagehero">
+<Base lang={lang} title={t.meta.privacy} description={pr.sections[0].p[0]} page="other">
+  <section class="pagehero on-dark">
     <div class="wrap">
       <p class="eyebrow">{pr.eyebrow}</p>
       <h1 class="pagehero__title">{pr.title}</h1>
     </div>
   </section>
-  <section class="section">
+  <section class="section bg-glow">
     <div class="wrap prose">
       <p class="note"><Icon name="alert" size={20} />{pr.draft}</p>
       {pr.sections.map((s) => (<><h2>{s.h}</h2>{s.p.map((x) => <p>{x}</p>)}</>))}

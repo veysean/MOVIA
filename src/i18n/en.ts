@@ -6,7 +6,6 @@
  */
 const en = {
   meta: {
-    siteName: 'MOVIA',
     tagline: 'Confidence in Every Motion.',
     description:
       'MOVIA is an early-stage mobility intelligence initiative in Cambodia, exploring how connected mobility and energy information can help EV drivers, charging operators and planners make more informed decisions.',
@@ -37,20 +36,26 @@ const en = {
     explore: 'Explore',
     connect: 'Connect',
     privacy: 'How we use your information',
-    emailLabel: 'Email us',
     rights: 'MOVIA',
   },
   home: {
     hero: {
       title: 'Confidence in Every Motion.',
-      lede: 'Connecting mobility insights to help make every journey smarter, safer, and more sustainable.',
+      lede: 'Making mobility more informed, accessible, and sustainable.',
       ctaJoin: 'Join Us',
       ctaMove: 'Move with Us',
       mockCaption: 'Rider app prototype · illustrative data',
+      videoLabel: 'Short demo of the MOVIA rider app prototype: checking range, finding a charger, charging and paying',
+      videoPlay: 'Play app demo',
+      videoPause: 'Pause app demo',
     },
-    problem: {
+    insight: {
       eyebrow: 'The insight',
       text: 'Mobility is connected, but the information behind every journey is often fragmented.',
+      statsLabel: 'Cambodia’s EV landscape in public figures',
+      sourcePrefix: 'Source:',
+      newTab: '(opens in a new tab)',
+      note: 'Public figures from Cambodian media and government sources.',
     },
     pillars: {
       eyebrow: 'The three pillars of MOVIA',
@@ -63,53 +68,34 @@ const en = {
       note: 'Our current conceptual framework — being shaped and validated with drivers and operators.',
     },
     impact: {
-      eyebrow: 'Intended impact',
-      title: 'Better decisions can create better mobility outcomes.',
-      items: [
-        { key: 'drivers', who: 'For drivers', text: 'Greater confidence in charging and journey planning.' },
-        { key: 'cpo', who: 'For charging operators', text: 'Better visibility into potential demand and utilization.' },
-        { key: 'cities', who: 'For cities and communities', text: 'A foundation for more informed mobility and infrastructure planning.' },
-      ],
-      note: 'These are the outcomes we are working towards and exploring — not proven results.',
-      link: 'Explore Our Impact',
+      eyebrow: 'Our impact',
+      title: 'Explore Our Impact',
+      text: 'See what we are learning, building and aiming to improve.',
+      cta: 'Explore Our Impact',
     },
     closing: {
       title: 'The future of mobility moves with us.',
       text: 'We’re building MOVIA through research, collaboration, and real-world validation. Be part of the journey.',
     },
   },
-  mock: {
-    greeting: 'Good morning',
-    battery: 'Battery',
-    range: 'Est. range',
-    where: 'Where are you going?',
-    nearby: 'Nearby charging',
-    free: 'Free',
-    inUse: 'In use',
-    hubA: 'Charging hub · Toul Kork',
-    hubB: 'Charging hub · BKK1',
-    tabs: ['Home', 'Charge', 'Service', 'Profile'],
-  },
   about: {
     hero: {
-      eyebrow: 'About MOVIA',
-      title: 'Building mobility intelligence for Cambodia — together.',
+      eyebrow: 'Move with Us', // same words as the "Move with Us" button that opens this page
+      title: 'About Us',
       lede: 'Why we exist, what guides us, who we are, what we are learning, and how you can help shape what comes next.',
     },
-    subnav: { mission: 'Mission & Vision', values: 'Values', team: 'Team', impact: 'Impact', ecosystem: 'Ecosystem', partner: 'Partner with us' },
+    subnav: { mission: 'Mission & Vision', values: 'Principles & values', team: 'Team', impact: 'Impact', journey: 'Learning journey', partner: 'Partner with us' },
     mission: {
-      eyebrow: 'Our mission & vision',
-      title: 'Why MOVIA exists.',
+      title: 'Our Mission & Vision',
+      lede: 'Our journey compass',
       missionLabel: 'Mission',
       mission: 'To connect mobility insights that help people and organizations make more informed journey and charging decisions.',
-      missionNote: 'What we are working to do.',
       visionLabel: 'Vision',
       vision: 'To build smart, safe, and more sustainable mobility decisions into every journey.',
-      visionNote: 'The future we want to help create.',
     },
     values: {
-      eyebrow: 'Our principles & values',
-      title: 'What guides every decision we make.',
+      title: 'Our principles & values',
+      lede: 'What guides every decision we make.',
       items: [
         { key: 'trust', name: 'Trust', text: 'Make information, assumptions, and limitations transparent.' },
         { key: 'safety', name: 'Safety', text: 'Put responsible mobility decisions first.' },
@@ -120,50 +106,30 @@ const en = {
       ],
     },
     team: {
-      eyebrow: 'Meet our team',
-      title: 'The people behind MOVIA.',
+      title: 'Meet our team, EnergyFlow',
       lede: 'A multidisciplinary founding team working across strategy, technology, infrastructure, partnerships and communications.',
+      study: 'Major and school',
       linkedin: 'LinkedIn',
       email: 'Email',
       pending: 'Profile pending this member’s review',
     },
     impact: {
-      eyebrow: 'Our impact',
-      title: 'Clear about what we know — and what we are still testing.',
-      lede: 'We separate current evidence from future ambitions, so you can see exactly where MOVIA stands.',
-      tiers: [
-        {
-          key: 'learning',
-          label: 'Now',
-          title: 'What we are learning',
-          items: ['Interviews with EV drivers about charging and journey challenges', 'Conversations with charging point operators', 'Stakeholder and user-needs research'],
-        },
-        {
-          key: 'building',
-          label: 'In progress',
-          title: 'What we are building or exploring',
-          items: ['A bilingual rider app prototype for charging and journey decisions', 'An operator dashboard prototype for demand visibility', 'Technical feasibility and data-integration research'],
-        },
-        {
-          key: 'aim',
-          label: 'Ambition',
-          title: 'What we aim to improve',
-          items: ['Journey confidence for EV drivers', 'Access to reliable charging information', 'Demand visibility for operators', 'Evidence-informed infrastructure planning'],
-        },
-      ],
-      proofTitle: 'Progress so far',
-      proofNote: 'Every figure includes its date and definition.',
+      title: 'Our Impact',
+      statsLabel: 'Our impact so far',
+      galleryLabel: 'EnergyFlow event photos',
+      photoPending: 'Event photo coming soon',
     },
-    ecosystem: {
-      eyebrow: 'Ecosystem & recognition',
-      title: 'Who we learn and grow with.',
-      lede: 'We describe every relationship accurately. A conversation, interview or technical investigation does not make an organization a formal partner.',
-      types: {
-        partner: { name: 'Formal partner', text: 'An agreed relationship approved for public representation.' },
-        program: { name: 'Program & recognition', text: 'Participation in an accelerator, innovation program, or award.' },
-        engagement: { name: 'Research & ecosystem engagement', text: 'Interviews, consultations, exploratory conversations, or technical investigation.' },
-      },
-      none: 'None announced yet.',
+    journey: {
+      title: 'Our learning journey',
+      reached: 'Reached',
+      next: 'Next',
+      photoOpen: 'opens a larger photo',
+      morePhotos: 'More photos',
+      gallery: 'Event photos',
+      close: 'Close',
+      prevPhoto: 'Previous photo',
+      nextPhoto: 'Next photo',
+      of: 'of',
     },
     partner: {
       eyebrow: 'Support our growth',
@@ -176,9 +142,9 @@ const en = {
   },
   join: {
     hero: {
-      eyebrow: 'Join Us',
-      title: 'Move with us.',
-      lede: 'Help shape the next chapter of mobility in Cambodia. Whether you’re an EV driver, a charging operator, or a potential collaborator, we want to hear from you.',
+      eyebrow: 'Get involved',
+      title: 'Join Us',
+      lede: 'Move with us and help shape the next chapter of mobility in Cambodia. Whether you’re an EV driver, a charging operator, or a potential collaborator, we want to hear from you.',
     },
     form: {
       roleLegend: 'I am…',

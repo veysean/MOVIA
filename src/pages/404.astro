@@ -1,16 +1,30 @@
 ---
+/* One static 404.html serves every missing URL (Cloudflare Pages), so it can't know the
+   visitor's language: it shows English first, then the same message in Khmer. */
 import Base from '../layouts/Base.astro';
 import { getDict, p } from '../i18n';
-const lang = Astro.url.pathname.startsWith('/km') ? 'km' : 'en';
-const t = getDict(lang);
+const en = getDict('en');
+const km = getDict('km');
 ---
-<Base lang={lang} title={t.meta.notFound} page="other" noindex>
-  <section class="section">
+<Base lang="en" title={en.meta.notFound} description={en.notFound.text} page="other" noindex>
+  <section class="pagehero on-dark">
     <div class="wrap">
       <p class="eyebrow">404</p>
-      <h1 class="pagehero__title">{t.notFound.title}</h1>
-      <p class="pagehero__lede">{t.notFound.text}</p>
-      <p style="margin-top: var(--sp-6)"><a class="btn btn--lg btn--primary" href={p(lang, '/')}>{t.notFound.back}</a></p>
+      <h1 class="pagehero__title">{en.notFound.title}</h1>
+      <p class="pagehero__lede">{en.notFound.text}</p>
+      <p class="pagehero__lede nf__km" lang="km">{km.notFound.title} {km.notFound.text}</p>
+    </div>
+  </section>
+  <section class="section section--tight bg-glow">
+    <div class="wrap nf__actions">
+      <a class="btn btn--lg btn--primary" href={p('en', '/')}>{en.notFound.back}</a>
+      <a class="btn btn--lg btn--soft" href={p('km', '/')} lang="km" hreflang="km">{km.notFound.back}</a>
     </div>
   </section>
 </Base>
+
+<style>
+  .nf__km { margin-top: var(--sp-3); }
+  :lang(km).nf__km { line-height: var(--lh-km); }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+</style>

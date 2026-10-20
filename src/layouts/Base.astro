@@ -8,6 +8,12 @@ import '../styles/base.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getDict, swapLang, type Lang } from '../i18n';
+// Preload the two weights every page uses above the fold (400 body, 600 headings/buttons) in the
+// page's own script, so text doesn't re-flow when the web font arrives (layout shift).
+import latin400 from '@fontsource/kantumruy-pro/files/kantumruy-pro-latin-400-normal.woff2?url';
+import latin600 from '@fontsource/kantumruy-pro/files/kantumruy-pro-latin-600-normal.woff2?url';
+import khmer400 from '@fontsource/kantumruy-pro/files/kantumruy-pro-khmer-400-normal.woff2?url';
+import khmer600 from '@fontsource/kantumruy-pro/files/kantumruy-pro-khmer-600-normal.woff2?url';
 
 interface Props { lang: Lang; title: string; description?: string; page: 'home' | 'about' | 'join' | 'other'; noindex?: boolean }
 const { lang, title, description, page, noindex = false } = Astro.props;
@@ -15,7 +21,10 @@ const t = getDict(lang);
 const desc = description ?? t.meta.description;
 const path = Astro.url.pathname;
 const canonical = new URL(path, Astro.site);
+// the 404 page has no language prefix and no real URL: no canonical / alternates for it
+const localized = /^\/(en|km)(\/|$)/.test(path);
 const ogImage = new URL('/og.png', Astro.site);
+const preloadFonts = lang === 'km' ? [khmer400, khmer600, latin600] : [latin400, latin600];
 ---
 <!doctype html>
 <html lang={lang}>
@@ -26,28 +35,40 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="description" content={desc} />
     <meta name="theme-color" content="#004E9F" />
     {noindex && <meta name="robots" content="noindex" />}
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={new URL(swapLang(path, 'en'), Astro.site)} />
-    <link rel="alternate" hreflang="km" href={new URL(swapLang(path, 'km'), Astro.site)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(swapLang(path, 'en'), Astro.site)} />
+    {localized && <link rel="canonical" href={canonical} />}
+    {localized && <link rel="alternate" hreflang="en" href={new URL(swapLang(path, 'en'), Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="km" href={new URL(swapLang(path, 'km'), Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="x-default" href={new URL(swapLang(path, 'en'), Astro.site)} />}
+    {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
     <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MOVIA" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={desc} />
-    <meta property="og:url" content={canonical} />
+    {localized && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content={lang === 'km' ? 'km_KH' : 'en_US'} />
     <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>
+      /* Motion opt-in, set before first paint so revealed content never flashes. Skipped under
+         prefers-reduced-motion. Fail-safe: if src/scripts/motion.ts hasn't started within 2.5 s,
+         drop the class so nothing stays hidden. */
+      (function (d) {
+        if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        d.classList.add('js-motion');
+        setTimeout(function () { if (!window.__motion) d.classList.remove('js-motion'); }, 2500);
+      })(document.documentElement);
+    </script>
     <slot name="head" />
   </head>
   <body>
     <a class="skip" href="#main">{t.nav.skip}</a>
     <Header lang={lang} page={page} />
-    <main id="main">
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer lang={lang} />
+    <script>import '../scripts/motion.ts';</script>
   </body>
 </html>

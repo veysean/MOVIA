@@ -12,7 +12,6 @@
   --azure-soft: #e8f0f9;   /* secondary buttons, soft fills */
   --azure-soft-hover: #d9e6f5;
   --saffron: #f98f11;      /* Deep Saffron: ENERGY + charging accents ONLY */
-  --saffron-soft: #ffebd1;
   --saffron-text: #a85a00; /* use when saffron-coloured TEXT is needed (5.1:1) */
   --pearl: #f8fafc;
   --white: #ffffff;
@@ -27,8 +26,47 @@
   --on-dark-line: rgba(255, 255, 255, 0.14);
   --on-dark-fill: rgba(255, 255, 255, 0.12);
   --on-dark-fill-hover: rgba(255, 255, 255, 0.2);
-  --saffron-on-dark: #ffc98a;              /* saffron-family TEXT on navy only */
-  --saffron-tint-dark: rgba(249, 143, 17, 0.16);
+
+  /* colour — slide-deck palette ("MOVIA – Confidence in Every Motion" Canva deck).
+     ORANGE (--orange-pill, --saffron, --gold) = fills, lines, icons only. Never text on
+     light backgrounds (~2:1). Orange/gold TEXT only on --royal or --footer-navy.
+     Text on an orange pill is always --navy-deep. Never the deck's red title colour. */
+  --navy-deep: #052b73;    /* logo wordmark navy; headings on light */
+  --royal: #093297;        /* deck cover card: hero card, page headers, dark sections */
+  --ocean: #1893c3;
+  --sky: #36c8e4;
+  --sky-light: #78caff;    /* 4px top edge of the footer band */
+  --gold: #ffbd59;         /* eyebrows/accents on royal + footer only (6.6:1) */
+  --orange-pill: #fd9d24;  /* deck "Presented by" pill: highlight pills, navy-deep text */
+  --footer-navy: #033a75;
+  --page-edge: #f8fafb;
+  --heading: var(--navy-deep);
+
+  /* gradients — decorative surfaces only, never buttons or text */
+  --grad-spectrum: linear-gradient(90deg, #052b73 0%, #004e9f 22%, #1893c3 45%, #36c8e4 62%, #ffbd59 80%, #f98f11 100%);
+  --grad-spectrum-v: linear-gradient(180deg, #052b73 0%, #004e9f 22%, #1893c3 45%, #36c8e4 62%, #ffbd59 80%, #f98f11 100%); /* same stops, top → bottom (vertical road) */
+  --grad-royal: linear-gradient(135deg, #093297 0%, #052b73 100%);
+  --grad-pin: linear-gradient(180deg, #fcad0e 0%, #f97136 100%);
+  /* light section backgrounds — alternate so neighbours never match; all end on --page-edge.
+     --grad-dawn's orange corner is decorative only: never put text on it. */
+  --grad-sky: linear-gradient(180deg, #eaf4fc 0%, #f8fafb 100%);
+  --grad-glow: radial-gradient(90% 70% at 50% 0%, #d9eaf9 0%, #eaf1f7 45%, #f8fafb 100%);
+  --grad-dawn: linear-gradient(135deg, #eaf4fc 0%, #f8fafb 55%, #fff4e5 100%);
+  /* soft seams: where two light sections meet, both sides fade to --page-edge */
+  --fade-top: linear-gradient(180deg, #f8fafb 0%, rgba(248, 250, 251, 0) 100%);
+  --fade-bottom: linear-gradient(0deg, #f8fafb 0%, rgba(248, 250, 251, 0) 100%);
+  --fade-h: var(--sp-8);
+  /* Home hero photo legibility: navy-deep scrim, under the text, over the image */
+  --grad-hero-overlay: linear-gradient(90deg, rgba(5, 43, 115, 0.92) 0%, rgba(5, 43, 115, 0.75) 38%, rgba(5, 43, 115, 0.15) 65%, rgba(5, 43, 115, 0) 80%);
+  /* 1024–1199px: the copy column reaches further across, so the scrim holds longer */
+  --grad-hero-overlay-tablet: linear-gradient(90deg, rgba(5, 43, 115, 0.92) 0%, rgba(5, 43, 115, 0.85) 50%, rgba(5, 43, 115, 0.45) 72%, rgba(5, 43, 115, 0) 92%);
+  --grad-hero-overlay-mobile: linear-gradient(180deg, rgba(5, 43, 115, 0.55) 0%, rgba(5, 43, 115, 0.88) 55%, rgba(5, 43, 115, 0.95) 100%);
+  --glass-fill: rgba(255, 255, 255, 0.14);   /* glass button on the hero photo */
+  --glass-fill-hover: rgba(255, 255, 255, 0.22);
+  --glass-line: rgba(255, 255, 255, 0.35);
+  --rule-w: 64px;          /* spectrum rule under section titles */
+  --rule-h: 4px;
+  --focus-ring-on-dark: var(--white);
 
   /* colour — semantic states (same as app) */
   --ok: #2f9e68; --ok-soft: #ddf0e5; --ok-text: #1e7a4c;
@@ -65,13 +103,63 @@
   --header-h: 68px;
 
   /* shape & depth — same as app: hairlines for structure, one soft lift */
-  --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 18px; --r-xl: 28px; --r-pill: 999px;
+  --r-xs: 6px; --r-md: 14px; --r-lg: 18px; --r-pill: 999px;
   --lift: 0 6px 20px rgba(11, 31, 58, 0.12);
   --shadow-xs: 0 1px 2px rgba(11, 31, 58, 0.12);
   --focus-ring: 0 0 0 3px rgba(0, 78, 159, 0.18);
+  --focus-w: 3px;          /* keyboard focus outline (all pages) */
+  --focus-offset: 3px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --shadow-hover: 0 10px 24px -8px rgba(11, 31, 58, 0.22); /* hover lift on buttons/cards */
+
+  /* motion — transform + opacity only; all of it is switched off under prefers-reduced-motion */
+  --dur-fast: 150ms;      /* hover / press */
+  --dur-reveal: 600ms;    /* scroll reveal fade-up */
+  --dur-draw: 800ms;      /* spectrum rule "draw" */
+  --reveal-y: 16px;
+  --stagger: 60ms;
+  --float-y: 6px;         /* hero image float amplitude */
+  --float-dur: 6s;
+  --parallax-max: 14px;   /* + float 6px = 20px max image travel (motion.ts reads this) */
+  --hero-bleed: 24px;     /* image overhang so float/parallax never show an edge */
+
+  /* Home hero (full-bleed photo) + inner page headers */
+  --hero-h: min(88vh, 760px);
+  --hero-h-mobile: 560px;
+  --hero-copy-w: 560px;
+  --hero-img-ratio: 1519 / 1080;  /* hero-road.jpg (Canva export); shown at ~native size on wide screens */
+  --hero-img-fade: 35%;        /* left part of that photo that fades into the royal background */
+  --pulse-dur: 2.4s;
+
+  /* About: Learning Journey road + Impact photo gallery */
+  --milestone-dot: var(--tap);   /* pin marker on the road */
+  --road-h: var(--sp-2);         /* road thickness */
+  --road-dash: 10px;             /* dash length for the upcoming (dashed) segment */
+  --photo-ratio: 4 / 3;          /* event photo slots */
+  --lightbox-max: 1200px;        /* largest photo in the lightbox (= the optimised files) */
+  --lightbox-backdrop: rgba(3, 20, 50, 0.9);
+
+  /* small fixed sizes used across pages */
+  --avatar: 72px;          /* team photo, thanks-page icon */
+  --step-size: 28px;       /* numbered step bubble (thanks) */
+  --control-size: 20px;    /* checkbox / radio box */
+  --check-size: 26px;      /* selected-role tick badge (join) */
+  --aside-w: 340px;        /* sticky "why we ask" column (join, desktop) */
+  --measure: 760px;        /* max line length for single-column text blocks */
+  --pillar-bar: var(--rule-h); /* coloured top bar on the Home pillar cards */
+
+  /* rider-app phone mockup (Home) */
+  --shadow-phone: 0 30px 60px -20px rgba(11, 31, 58, 0.35);
+  --scrim: rgba(11, 31, 58, 0.62);   /* play/pause button over the video */
+  --blur-glass: 6px;
+  --phone-w: 300px;
+  --phone-bezel: 10px;
+  --phone-radius: 36px;
 }
 
 @media (min-width: 768px) {
   :root { --gutter: 32px; }
+}
+@media (max-width: 599px) {
+  :root { --phone-w: 250px; --phone-bezel: 8px; --phone-radius: 30px; }
 }
